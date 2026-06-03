@@ -1,70 +1,98 @@
-# Getting Started with Create React App
+# VectorShift Frontend Technical Assessment — Complete Solution
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 📁 File Placement
 
-## Available Scripts
+Replace / add these files in your project:
 
-In the project directory, you can run:
+### Frontend (`/frontend/src/`)
+- `App.js` — replace
+- `index.css` — replace
+- `store.js` — replace
+- `submit.js` — replace
+- `toolbar.js` — replace
+- `draggableNode.js` — replace
+- `ui.js` — replace
+- `nodes/BaseNode.js` — NEW (the abstraction)
+- `nodes/inputNode.js` — replace
+- `nodes/outputNode.js` — replace
+- `nodes/llmNode.js` — replace
+- `nodes/textNode.js` — replace
+- `nodes/filterNode.js` — NEW
+- `nodes/mathNode.js` — NEW
+- `nodes/apiNode.js` — NEW
+- `nodes/delayNode.js` — NEW
+- `nodes/databaseNode.js` — NEW
 
-### `npm start`
+### Frontend root
+- `package.json` — replace (adds `zustand` dependency)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Backend
+- `main.py` — replace
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## 🚀 Run Instructions
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### One-time setup
 
-### `npm run build`
+**Frontend** (in `/frontend`):
+```bash
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Backend** (in `/backend`):
+```bash
+pip install fastapi uvicorn
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Run
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Terminal 1 — Backend:**
+```bash
+cd backend
+uvicorn main:app --reload
+```
+Backend runs on `http://localhost:8000`
 
-### `npm run eject`
+**Terminal 2 — Frontend:**
+```bash
+cd frontend
+npm start
+```
+Frontend runs on `http://localhost:3000`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## ✅ What's Included
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Part 1 — Node Abstraction ✓
+- `BaseNode.js` is a single reusable component that handles header, body, fields, and handles
+- All 4 original nodes refactored to use it
+- **5 new nodes**: Filter, Math, API, Delay, Database
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Part 2 — Styling ✓
+- Modern gradient header
+- Color-coded nodes with icons
+- Hover effects on toolbar items and submit button
+- Soft shadows, rounded corners, clean typography
+- Styled minimap and controls
 
-## Learn More
+### Part 3 — Text Node Logic ✓
+- Textarea auto-resizes width AND height as you type
+- `{{ variableName }}` regex parsing creates dynamic input handles on the left
+- Labels next to each handle show variable name
+- Variables list shown below the textarea
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Part 4 — Backend Integration ✓
+- `submit.js` POSTs `{nodes, edges}` to `/pipelines/parse`
+- Backend uses Kahn's algorithm for DAG detection
+- CORS enabled for the frontend
+- User-friendly alert displays results
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
+## 🧪 Test the DAG Logic
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. Drag 3 nodes onto the canvas (e.g. Input → LLM → Output)
+2. Connect them in order → click Submit → `is_dag: true` ✓
+3. Connect Output back to Input (creating a cycle) → Submit → `is_dag: false` ✘
