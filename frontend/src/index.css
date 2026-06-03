@@ -1,43 +1,351 @@
+/* ===========================
+   GLOBAL STYLES & THEME SYSTEM
+   =========================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Light theme (default) */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-canvas: #fafbfc;
+  --bg-dot: #cbd5e1;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+
+  --node-bg: #ffffff;
+  --node-border: #e2e8f0;
+  --field-bg: #f8fafc;
+  --field-border: #e2e8f0;
+
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #f59e0b;
+}
+
+[data-theme='dark'] {
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #131826;
+  --bg-tertiary: #1a2030;
+  --bg-canvas: #0f1420;
+  --bg-dot: #2d3548;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #64748b;
+
+  --border-primary: #2d3548;
+  --border-secondary: #374151;
+
+  --accent-primary: #818cf8;
+  --accent-secondary: #a78bfa;
+  --accent-gradient: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(129, 140, 248, 0.4);
+
+  --node-bg: #1a2030;
+  --node-border: #2d3548;
+  --field-bg: #131826;
+  --field-border: #2d3548;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f8fafc;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
-}
-
-/* Improve React Flow controls look */
-.react-flow__controls {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-  border-radius: 8px !important;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
   overflow: hidden;
 }
 
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', source-code-pro, Menlo, Monaco, monospace;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* React Flow customizations */
+.react-flow {
+  background: var(--bg-canvas);
+}
+
+.react-flow__background {
+  background: var(--bg-canvas);
+}
+
+.react-flow__controls {
+  box-shadow: var(--shadow-md) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  border: 1px solid var(--border-primary) !important;
+}
+
 .react-flow__controls button {
-  background: #fff !important;
-  border-bottom: 1px solid #e2e8f0 !important;
+  background: var(--bg-secondary) !important;
+  border-bottom: 1px solid var(--border-primary) !important;
+  color: var(--text-primary) !important;
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.react-flow__controls button:hover {
+  background: var(--bg-tertiary) !important;
+}
+
+.react-flow__controls button svg {
+  fill: var(--text-primary) !important;
 }
 
 .react-flow__minimap {
-  border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow-md) !important;
+  border: 1px solid var(--border-primary) !important;
+  overflow: hidden;
+  background: var(--bg-secondary) !important;
 }
 
 .react-flow__edge-path {
-  stroke: #6366f1;
+  stroke: var(--accent-primary);
   stroke-width: 2;
 }
 
+.react-flow__edge.cycle-edge .react-flow__edge-path {
+  stroke: var(--danger) !important;
+  stroke-width: 3;
+  animation: cyclePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes cyclePulse {
+  0%, 100% { opacity: 1; stroke-width: 3; }
+  50% { opacity: 0.5; stroke-width: 4; }
+}
+
 .react-flow__handle {
-  transition: transform 0.15s;
+  transition: transform 0.15s, background 0.15s;
+  border: 2px solid var(--bg-secondary) !important;
 }
 
 .react-flow__handle:hover {
-  transform: scale(1.3);
+  transform: scale(1.4);
+}
+
+.react-flow__attribution {
+  display: none !important;
+}
+
+/* Selection */
+.react-flow__node.selected .node-card {
+  box-shadow: 0 0 0 2px var(--accent-primary), var(--shadow-lg) !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.fade-in { animation: fadeIn 0.3s ease-out; }
+.slide-in-left { animation: slideInLeft 0.3s ease-out; }
+
+/* Button base */
+.btn {
+  font-family: inherit;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  padding: 8px 14px;
+}
+
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+  background: var(--accent-gradient);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover { box-shadow: var(--shadow-glow); }
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-primary);
+  border-color: var(--accent-primary);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+/* Input base */
+.input-base {
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  font-family: inherit;
+}
+
+.input-base:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Empty state */
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--text-tertiary);
+  text-align: center;
+  padding: 20px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: auto;
+  animation: fadeIn 0.3s ease;
+  border: 1px solid var(--border-primary);
+}
+
+/* Tooltip */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--text-primary);
+  color: var(--bg-secondary);
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  z-index: 100;
+}
+
+.tooltip:hover::after { opacity: 1; }
+
+/* Node card hover */
+.node-card {
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.node-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Toast container override */
+.toast-container > div {
+  font-family: 'Inter', sans-serif !important;
 }

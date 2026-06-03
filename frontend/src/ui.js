@@ -1,36 +1,14 @@
-// ui.js
+// ui.js — Main pipeline canvas
 
 import { useState, useRef, useCallback } from 'react';
-import ReactFlow, { Controls, Background, MiniMap } from 'reactflow';
+import ReactFlow, { Controls, Background, MiniMap, BackgroundVariant } from 'reactflow';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
-
-import { InputNode } from './nodes/inputNode';
-import { LLMNode } from './nodes/llmNode';
-import { OutputNode } from './nodes/outputNode';
-import { TextNode } from './nodes/textNode';
-import { FilterNode } from './nodes/filterNode';
-import { MathNode } from './nodes/mathNode';
-import { ApiNode } from './nodes/apiNode';
-import { DelayNode } from './nodes/delayNode';
-import { DatabaseNode } from './nodes/databaseNode';
-
+import { NODE_TYPES, getNodeColor } from './nodes/nodeRegistry';
+import { EmptyState } from './components/EmptyState';
 import 'reactflow/dist/style.css';
 
-const gridSize = 20;
 const proOptions = { hideAttribution: true };
-
-const nodeTypes = {
-  customInput: InputNode,
-  llm: LLMNode,
-  customOutput: OutputNode,
-  text: TextNode,
-  filter: FilterNode,
-  math: MathNode,
-  api: ApiNode,
-  delay: DelayNode,
-  database: DatabaseNode,
-};
 
 const selector = (state) => ({
   nodes: state.nodes,
@@ -46,45 +24,33 @@ export const PipelineUI = () => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const {
-    nodes,
-    edges,
-    getNodeID,
-    addNode,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
+    nodes, edges, getNodeID, addNode,
+    onNodesChange, onEdgesChange, onConnect,
   } = useStore(selector, shallow);
-
-  const getInitNodeData = (nodeID, type) => {
-    return { id: nodeID, nodeType: `${type}` };
-  };
 
   const onDrop = useCallback(
     (event) => {
       event.preventDefault();
       const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
+      const raw = event.dataTransfer.getData('application/reactflow');
+      if (!raw) return;
+      const { nodeType } = JSON.parse(raw);
+      if (!nodeType || !reactFlowInstance) return;
 
-      if (event?.dataTransfer?.getData('application/reactflow')) {
-        const appData = JSON.parse(event.dataTransfer.getData('application/reactflow'));
-        const type = appData?.nodeType;
-        if (!type) return;
+      const position = reactFlowInstance.project({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
 
-        const position = reactFlowInstance.project({
-          x: event.clientX - reactFlowBounds.left,
-          y: event.clientY - reactFlowBounds.top,
-        });
-
-        const nodeID = getNodeID(type);
-        const newNode = {
-          id: nodeID,
-          type,
-          position,
-          data: getInitNodeData(nodeID, type),
-        };
-        addNode(newNode);
-      }
+      const nodeID = getNodeID(nodeType);
+      addNode({
+        id: nodeID,
+        type: nodeType,
+        position,
+        data: { id: nodeID, nodeType },
+      });
     },
-    [reactFlowInstance, addNode, getNodeID]
+    [reactFlowInstance, getNodeID, addNode]
   );
 
   const onDragOver = useCallback((event) => {
@@ -93,14 +59,7 @@ export const PipelineUI = () => {
   }, []);
 
   return (
-    <div
-      ref={reactFlowWrapper}
-      style={{
-        width: '100%',
-        height: '70vh',
-        background: '#f1f5f9',
-      }}
-    >
+    <div ref={reactFlowWrapper} style={{ flex: 1, position: 'relative' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -110,30 +69,31 @@ export const PipelineUI = () => {
         onDrop={onDrop}
         onDragOver={onDragOver}
         onInit={setReactFlowInstance}
-        nodeTypes={nodeTypes}
+        nodeTypes={NODE_TYPES}
         proOptions={proOptions}
-        snapGrid={[gridSize, gridSize]}
         connectionLineType="smoothstep"
+        defaultEdgeOptions={{ type: 'smoothstep', animated: true }}
         fitView
+        snapToGrid
+        snapGrid={[16, 16]}
+        deleteKeyCode={null}  // we handle delete via shortcuts hook
+        multiSelectionKeyCode="Shift"
       >
-        <Background color="#cbd5e1" gap={gridSize} />
-        <Controls />
-        <MiniMap
-          nodeColor={(n) => {
-            const colors = {
-              customInput: '#3b82f6',
-              customOutput: '#10b981',
-              llm: '#8b5cf6',
-              text: '#f59e0b',
-              filter: '#ef4444',
-              math: '#06b6d4',
-              api: '#0ea5e9',
-              delay: '#a855f7',
-              database: '#0f766e',
-            };
-            return colors[n.type] || '#94a3b8';
-          }}
+        {/* Whiteboard-style dot grid */}
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1.5}
+          color="var(--bg-dot)"
         />
+        <Controls showInteractive={false} />
+        <MiniMap
+          nodeColor={(n) => getNodeColor(n.type)}
+          maskColor="rgba(0,0,0,0.1)"
+          pannable
+          zoomable
+        />
+        {nodes.length === 0 && <EmptyState />}
       </ReactFlow>
     </div>
   );
