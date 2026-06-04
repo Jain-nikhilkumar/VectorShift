@@ -2,8 +2,9 @@
 // Single source of truth for all node types
 // Each node is defined with metadata + a render function using BaseNode
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { BaseNode } from './BaseNode';
+import { useStore } from '../store';
 import {
   Inbox, Send, Bot, FileText, Filter, Calculator, Globe, Clock, Database,
   Webhook, Braces, GitBranch, Repeat, Lock, Mail, MessageSquare, Upload,
@@ -60,19 +61,57 @@ const LLMNode = ({ id, data }) => {
   );
 };
 
-// Special TextNode — uses BaseNode + dynamic {{var}} handles
+// Special TextNode — uses BaseNode + dynamic {{var}} handles + AUTO-RESIZE on text
 const VAR_REGEX = /\{\{\s*([A-Za-z_$][A-Za-z0-9_$]*)\s*\}\}/g;
 
 const TextNode = ({ id, data }) => {
   const [currText, setCurrText] = useState(data?.text || '{{input}}');
+  const updateNodeSize = useStore((s) => s.updateNodeSize);
 
-  // Detect {{variable}} patterns
+  // Detect {{variable}} patterns → create dynamic input handles
   const variables = useMemo(() => {
     const matches = [...currText.matchAll(VAR_REGEX)];
     return [...new Set(matches.map((m) => m[1]))];
   }, [currText]);
 
-  // Convert variables to input handles
+  // PART 3 REQUIREMENT: auto-resize node as user types
+  // Width grows up to a cap, then text wraps and HEIGHT grows
+  useEffect(() => {
+    const MIN_WIDTH = 280;
+    const MAX_WIDTH = 420;   // cap so text wraps after this
+    const MIN_HEIGHT = 180;
+    const MAX_HEIGHT = 600;
+    const CHAR_WIDTH = 7.5;  // approx px per char
+    const LINE_HEIGHT = 22;
+    const HORIZONTAL_PADDING = 80;
+    const BASE_HEIGHT = 110;  // header + paddings
+
+    const explicitLines = currText.split('\n');
+    const longestLine = Math.max(...explicitLines.map((l) => l.length), 12);
+
+    // Width: grow with longest line, but capped
+    const newWidth = Math.min(
+      Math.max(MIN_WIDTH, longestLine * CHAR_WIDTH + HORIZONTAL_PADDING),
+      MAX_WIDTH
+    );
+
+    // Count VISUAL lines (including word-wrap based on width)
+    const charsPerLine = Math.max(20, Math.floor((newWidth - HORIZONTAL_PADDING) / CHAR_WIDTH));
+    let visualLines = 0;
+    explicitLines.forEach((line) => {
+      visualLines += line.length === 0 ? 1 : Math.ceil(line.length / charsPerLine);
+    });
+
+    // Extra space if vars pill row is showing
+    const varsExtra = variables.length > 0 ? 36 : 0;
+    const newHeight = Math.min(
+      Math.max(MIN_HEIGHT, BASE_HEIGHT + visualLines * LINE_HEIGHT + varsExtra),
+      MAX_HEIGHT
+    );
+
+    updateNodeSize(id, newWidth, newHeight);
+  }, [currText, id, updateNodeSize, variables.length]);
+
   const dynamicInputs = variables.map((v) => ({ id: v, label: v }));
 
   return (
@@ -85,49 +124,73 @@ const TextNode = ({ id, data }) => {
       width={280}
       inputs={dynamicInputs}
       outputs={[{ id: 'output', label: 'output' }]}
-      fields={[
-        {
-          type: 'textarea',
-          label: 'Text',
-          name: 'text',
-          value: currText,
-          placeholder: 'Type text. Use {{variableName}} for variables.',
-          onChange: setCurrText,
-          rows: 4,
-        },
-      ]}
     >
-      {({ scale, px }) =>
-        variables.length > 0 && (
-          <div
+      {({ scale, px }) => (
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: px(6) }}>
+          <label
             style={{
-              marginTop: px(8),
               fontSize: px(10),
+              fontWeight: 700,
               color: 'var(--text-tertiary)',
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: px(4),
-              alignItems: 'center',
+              textTransform: 'uppercase',
+              letterSpacing: '0.6px',
+              flexShrink: 0,
             }}
           >
-            <span style={{ fontWeight: 600 }}>Vars:</span>
-            {variables.map((v) => (
-              <span
-                key={v}
-                style={{
-                  background: 'rgba(245,158,11,0.15)',
-                  color: '#f59e0b',
-                  padding: `${px(2)} ${px(6)}`,
-                  borderRadius: px(4),
-                  fontWeight: 600,
-                }}
-              >
-                {v}
-              </span>
-            ))}
-          </div>
-        )
-      }
+            Text
+          </label>
+          <textarea
+            value={currText}
+            onChange={(e) => setCurrText(e.target.value)}
+            placeholder="Type text. Use {{variableName}} for variables."
+            style={{
+              flex: 1,
+              minHeight: 0,
+              fontSize: px(12),
+              padding: `${px(8)} ${px(10)}`,
+              borderRadius: px(6),
+              width: '100%',
+              background: 'var(--field-bg)',
+              border: '1px solid var(--field-border)',
+              color: 'var(--text-primary)',
+              outline: 'none',
+              fontFamily: 'inherit',
+              resize: 'none',
+              boxSizing: 'border-box',
+              lineHeight: 1.5,
+            }}
+          />
+          {variables.length > 0 && (
+            <div
+              style={{
+                fontSize: px(10),
+                color: 'var(--text-tertiary)',
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: px(4),
+                alignItems: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontWeight: 600 }}>Vars:</span>
+              {variables.map((v) => (
+                <span
+                  key={v}
+                  style={{
+                    background: 'rgba(245,158,11,0.15)',
+                    color: '#f59e0b',
+                    padding: `${px(2)} ${px(6)}`,
+                    borderRadius: px(4),
+                    fontWeight: 600,
+                  }}
+                >
+                  {v}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </BaseNode>
   );
 };

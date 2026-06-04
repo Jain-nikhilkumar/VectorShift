@@ -1,6 +1,6 @@
 // nodes/BaseNode.js — 8-way resize + content scaling + REFINED CONNECTION POINTS
 
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import { useStore } from '../store';
 
@@ -35,6 +35,15 @@ export const BaseNode = ({
   const [height, setHeight] = useState(data?.height || null);
   const [isResizing, setIsResizing] = useState(false);
   const wrapperRef = useRef(null);
+
+  // Sync external size changes (e.g. from TextNode auto-resize) to internal state
+  // Skip while user is actively dragging to avoid fighting their input
+  useEffect(() => {
+    if (isResizing) return;
+    if (data?.width && data.width !== width) setWidth(data.width);
+    if (data?.height && data.height !== height) setHeight(data.height);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.width, data?.height]);
 
   const scale = useMemo(() => {
     const widthScale = width / defaultWidth;
