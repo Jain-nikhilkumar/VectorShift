@@ -1,7 +1,15 @@
-// submit.js — Backend integration
+// submit.js — Works on localhost AND Vercel automatically
 
 import { useStore } from './store';
 import toast from 'react-hot-toast';
+
+// Auto-detect environment:
+// - On localhost → use local backend at :8000
+// - On Vercel (production) → use relative /api path (same domain)
+const API_URL =
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:8000/pipelines/parse'
+    : '/api/pipelines/parse';
 
 export const submitPipeline = async () => {
   const { nodes, edges, setCycleEdges } = useStore.getState();
@@ -11,36 +19,38 @@ export const submitPipeline = async () => {
     return null;
   }
 
-  const loadingToast = toast.loading('Analyzing pipeline...');
+  toast.dismiss();
+  const loadingId = toast.loading('Analyzing pipeline...');
 
   try {
-    const response = await fetch('http://localhost:8000/pipelines/parse', {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nodes, edges }),
     });
 
-    if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+    toast.dismiss(loadingId);
+
+    if (!response.ok) throw new Error(`Server error: ${response.status}`);
     const data = await response.json();
 
-    // Highlight cycle edges if present
     if (!data.is_dag && data.cycle_edge_ids) {
       setCycleEdges(data.cycle_edge_ids);
     } else {
       setCycleEdges([]);
     }
 
-    toast.dismiss(loadingToast);
     if (data.is_dag) {
-      toast.success('Pipeline is a valid DAG');
+      toast.success('Pipeline is a valid DAG', { duration: 2500 });
     } else {
-      toast.error('Cycle detected in pipeline');
+      toast.error('Cycle detected in pipeline', { duration: 2500 });
     }
 
     return data;
   } catch (err) {
-    toast.dismiss(loadingToast);
-    toast.error(`Failed: ${err.message}. Is the backend running on :8000?`, { duration: 4000 });
+    toast.dismiss(loadingId);
+    toast.dismiss();
+    toast.error(`Failed: ${err.message}`, { duration: 4000 });
     return null;
   }
 };
