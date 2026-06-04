@@ -1,7 +1,7 @@
 // components/SubmitResultModal.js
 
 import { Modal } from './Modal';
-import { CheckCircle2, XCircle, GitMerge, Circle, Box } from 'lucide-react';
+import { CheckCircle2, XCircle, GitMerge, Box } from 'lucide-react';
 
 export const SubmitResultModal = ({ open, onClose, result }) => {
   if (!result) return null;
