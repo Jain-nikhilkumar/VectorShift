@@ -19,6 +19,7 @@ const InputNode = ({ id, data }) => {
   const [inputType, setInputType] = useState(data?.inputType || 'Text');
   return (
     <BaseNode id={id} data={data} title="Input" icon={<Inbox {...ICON_PROPS} />} color="#3b82f6"
+      inputs={[{ id: 'trigger', label: 'trigger' }]}
       outputs={[{ id: 'value', label: 'value' }]}
       fields={[
         { type: 'text', label: 'Name', name: 'inputName', value: currName, onChange: setCurrName },
@@ -34,6 +35,7 @@ const OutputNode = ({ id, data }) => {
   return (
     <BaseNode id={id} data={data} title="Output" icon={<Send {...ICON_PROPS} />} color="#10b981"
       inputs={[{ id: 'value', label: 'value' }]}
+      outputs={[{ id: 'forward', label: 'forward' }]}
       fields={[
         { type: 'text', label: 'Name', name: 'outputName', value: currName, onChange: setCurrName },
         { type: 'select', label: 'Type', name: 'outputType', value: outputType, options: ['Text', 'Image', 'JSON', 'File'], onChange: setOutputType },
@@ -215,6 +217,7 @@ const WebhookNode = ({ id, data }) => {
   const [url, setUrl] = useState(data?.url || 'https://hooks.example.com/abc');
   return (
     <BaseNode id={id} data={data} title="Webhook" icon={<Webhook {...ICON_PROPS} />} color="#7c3aed"
+      inputs={[{ id: 'trigger', label: 'trigger' }]}
       outputs={[{ id: 'payload', label: 'payload' }, { id: 'headers', label: 'headers' }]}
       fields={[
         { type: 'text', label: 'Webhook URL', name: 'url', value: url, onChange: setUrl },
@@ -271,6 +274,7 @@ const AuthNode = ({ id, data }) => {
   const [token, setToken] = useState(data?.token || '');
   return (
     <BaseNode id={id} data={data} title="Auth" icon={<Lock {...ICON_PROPS} />} color="#475569"
+      inputs={[{ id: 'credentials', label: 'credentials' }]}
       outputs={[{ id: 'headers', label: 'headers' }]}
       fields={[
         { type: 'select', label: 'Method', name: 'authMethod', value: method,
@@ -313,6 +317,7 @@ const FileUploadNode = ({ id, data }) => {
   const [accept, setAccept] = useState(data?.accept || 'image/*');
   return (
     <BaseNode id={id} data={data} title="File Upload" icon={<Upload {...ICON_PROPS} />} color="#0891b2"
+      inputs={[{ id: 'trigger', label: 'trigger' }]}
       outputs={[{ id: 'file', label: 'file' }, { id: 'url', label: 'url' }]}
       fields={[
         { type: 'select', label: 'Accept', name: 'accept', value: accept,
@@ -375,6 +380,7 @@ const ScheduleNode = ({ id, data }) => {
   const [cron, setCron] = useState(data?.cron || '0 * * * *');
   return (
     <BaseNode id={id} data={data} title="Schedule" icon={<Calendar {...ICON_PROPS} />} color="#9333ea"
+      inputs={[{ id: 'control', label: 'control' }]}
       outputs={[{ id: 'trigger', label: 'trigger' }, { id: 'time', label: 'time' }]}
       fields={[
         { type: 'text', label: 'Cron Expression', name: 'cron', value: cron, placeholder: '0 * * * *', onChange: setCron },

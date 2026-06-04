@@ -1,4 +1,4 @@
-// store.js — Enhanced with history (undo/redo), clipboard, selection, resize+position support
+// store.js — Full state management with edge editing, selection, history
 
 import { create } from 'zustand';
 import {
@@ -10,6 +10,16 @@ import {
 
 const MAX_HISTORY = 50;
 
+// Default edge style
+const DEFAULT_EDGE_STYLE = {
+  type: 'editable',
+  stroke: '#6366f1',
+  strokeWidth: 2,
+  strokeDasharray: '',
+  animated: true,
+  label: '',
+};
+
 export const useStore = create((set, get) => ({
   nodes: [],
   edges: [],
@@ -17,10 +27,13 @@ export const useStore = create((set, get) => ({
 
   history: { past: [], future: [] },
   clipboard: null,
+
   selectedNodes: [],
   selectedEdges: [],
+
   cycleEdgeIds: [],
 
+  // ---------- HISTORY ----------
   takeSnapshot: () => {
     const { nodes, edges, history } = get();
     const past = [
@@ -69,6 +82,7 @@ export const useStore = create((set, get) => ({
   canUndo: () => get().history.past.length > 0,
   canRedo: () => get().history.future.length > 0,
 
+  // ---------- NODES ----------
   getNodeID: (type) => {
     const newIDs = { ...get().nodeIDs };
     if (newIDs[type] === undefined) newIDs[type] = 0;
@@ -89,32 +103,9 @@ export const useStore = create((set, get) => ({
     if (impactful) get().takeSnapshot();
     set({ nodes: applyNodeChanges(changes, get().nodes) });
 
-    const selected = changes.filter((c) => c.type === 'select');
-    if (selected.length > 0) {
-      const allSelected = get().nodes.filter((n) => n.selected).map((n) => n.id);
-      set({ selectedNodes: allSelected });
-    }
-  },
-
-  onEdgesChange: (changes) => {
-    const impactful = changes.some((c) => c.type === 'remove');
-    if (impactful) get().takeSnapshot();
-    set({ edges: applyEdgeChanges(changes, get().edges) });
-  },
-
-  onConnect: (connection) => {
-    get().takeSnapshot();
-    set({
-      edges: addEdge(
-        {
-          ...connection,
-          type: 'smoothstep',
-          animated: true,
-          markerEnd: { type: MarkerType.ArrowClosed, height: 20, width: 20 },
-        },
-        get().edges
-      ),
-    });
+    // Update selection
+    const allSelected = get().nodes.filter((n) => n.selected).map((n) => n.id);
+    set({ selectedNodes: allSelected });
   },
 
   updateNodeField: (nodeId, fieldName, fieldValue) => {
@@ -147,27 +138,78 @@ export const useStore = create((set, get) => ({
     });
   },
 
-  // NEW: used by 8-way resize when dragging from west/north edges
-  updateNodePosition: (nodeId, x, y) => {
+  // ---------- EDGES ----------
+  onEdgesChange: (changes) => {
+    const impactful = changes.some((c) => c.type === 'remove');
+    if (impactful) get().takeSnapshot();
+    set({ edges: applyEdgeChanges(changes, get().edges) });
+
+    const allSelected = get().edges.filter((e) => e.selected).map((e) => e.id);
+    set({ selectedEdges: allSelected });
+  },
+
+  onConnect: (connection) => {
+    get().takeSnapshot();
+    const newEdge = {
+      ...connection,
+      id: `e-${connection.source}-${connection.target}-${Date.now()}`,
+      type: DEFAULT_EDGE_STYLE.type,
+      animated: DEFAULT_EDGE_STYLE.animated,
+      style: {
+        stroke: DEFAULT_EDGE_STYLE.stroke,
+        strokeWidth: DEFAULT_EDGE_STYLE.strokeWidth,
+      },
+      data: {
+        pathType: 'smoothstep',
+        midpointOffset: { x: 0, y: 0 },
+        strokeStyle: 'solid',
+      },
+      markerEnd: { type: MarkerType.ArrowClosed, height: 18, width: 18, color: DEFAULT_EDGE_STYLE.stroke },
+    };
+    set({ edges: addEdge(newEdge, get().edges) });
+  },
+
+  updateEdge: (edgeId, updates) => {
     set({
-      nodes: get().nodes.map((node) => {
-        if (node.id === nodeId) {
-          return { ...node, position: { x, y } };
-        }
-        return node;
+      edges: get().edges.map((e) => {
+        if (e.id !== edgeId) return e;
+        const merged = { ...e, ...updates };
+        // Merge nested objects properly
+        if (updates.style) merged.style = { ...e.style, ...updates.style };
+        if (updates.data) merged.data = { ...e.data, ...updates.data };
+        if (updates.markerEnd) merged.markerEnd = { ...e.markerEnd, ...updates.markerEnd };
+        return merged;
       }),
     });
   },
 
-  deleteSelected: () => {
-    const { nodes, edges, selectedNodes } = get();
-    if (selectedNodes.length === 0) return;
+  deleteEdge: (edgeId) => {
     get().takeSnapshot();
+    set({
+      edges: get().edges.filter((e) => e.id !== edgeId),
+      selectedEdges: get().selectedEdges.filter((id) => id !== edgeId),
+    });
+  },
+
+  // ---------- SELECTION ACTIONS ----------
+  deleteSelected: () => {
+    const { nodes, edges, selectedNodes, selectedEdges } = get();
+    if (selectedNodes.length === 0 && selectedEdges.length === 0) return;
+    get().takeSnapshot();
+
     const remainingNodes = nodes.filter((n) => !selectedNodes.includes(n.id));
     const remainingEdges = edges.filter(
-      (e) => !selectedNodes.includes(e.source) && !selectedNodes.includes(e.target)
+      (e) =>
+        !selectedEdges.includes(e.id) &&
+        !selectedNodes.includes(e.source) &&
+        !selectedNodes.includes(e.target)
     );
-    set({ nodes: remainingNodes, edges: remainingEdges, selectedNodes: [] });
+    set({
+      nodes: remainingNodes,
+      edges: remainingEdges,
+      selectedNodes: [],
+      selectedEdges: [],
+    });
   },
 
   copySelected: () => {
@@ -202,7 +244,7 @@ export const useStore = create((set, get) => ({
 
     const newEdges = clipboard.edges.map((e) => ({
       ...e,
-      id: `e-${idMap[e.source]}-${idMap[e.target]}-${Date.now()}`,
+      id: `e-${idMap[e.source]}-${idMap[e.target]}-${Date.now()}-${Math.random()}`,
       source: idMap[e.source],
       target: idMap[e.target],
       sourceHandle: e.sourceHandle?.replace(e.source, idMap[e.source]),
@@ -221,9 +263,10 @@ export const useStore = create((set, get) => ({
     get().paste(30, 30);
   },
 
+  // ---------- BULK ----------
   clearAll: () => {
     get().takeSnapshot();
-    set({ nodes: [], edges: [], selectedNodes: [], cycleEdgeIds: [] });
+    set({ nodes: [], edges: [], selectedNodes: [], selectedEdges: [], cycleEdgeIds: [] });
   },
 
   loadPipeline: ({ nodes, edges, nodeIDs }) => {
@@ -233,6 +276,7 @@ export const useStore = create((set, get) => ({
       edges: edges || [],
       nodeIDs: nodeIDs || {},
       selectedNodes: [],
+      selectedEdges: [],
       cycleEdgeIds: [],
     });
   },

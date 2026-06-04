@@ -1,22 +1,28 @@
-// App.js — Main app (Save/Load modal removed — using Export/Import only)
+// App.js — Final production app
 
 import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
+import { ReactFlowProvider } from 'reactflow';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { PipelineUI } from './ui';
 import { SubmitResultModal } from './components/SubmitResultModal';
 import { ShortcutsModal } from './components/ShortcutsModal';
+import { EdgeToolbar } from './components/EdgeToolbar';
+import { EdgePanel } from './components/EdgePanel';
 import { useTheme } from './hooks/useTheme';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useGridSettings } from './hooks/useGridSettings';
 import { submitPipeline } from './submit';
 
-function App() {
+function AppInner() {
   const { theme } = useTheme();
+  const { settings: gridSettings, update: updateGridSettings } = useGridSettings();
   useKeyboardShortcuts();
 
   const [submitResult, setSubmitResult] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showEdgePanel, setShowEdgePanel] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -35,12 +41,18 @@ function App() {
       <Header
         onSubmit={handleSubmit}
         onShowShortcuts={() => setShowShortcuts(true)}
+        gridSettings={gridSettings}
+        updateGridSettings={updateGridSettings}
       />
 
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         <Sidebar />
-        <PipelineUI />
+        <PipelineUI gridSettings={gridSettings} />
       </div>
+
+      {/* Edge editing UI */}
+      <EdgeToolbar onOpenPanel={() => setShowEdgePanel(true)} />
+      <EdgePanel open={showEdgePanel} onClose={() => setShowEdgePanel(false)} />
 
       <SubmitResultModal
         open={!!submitResult}
@@ -51,7 +63,9 @@ function App() {
 
       <Toaster
         position="bottom-right"
+        gutter={8}
         toastOptions={{
+          duration: 2200,
           style: {
             background: 'var(--bg-secondary)',
             color: 'var(--text-primary)',
@@ -66,6 +80,14 @@ function App() {
         }}
       />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <ReactFlowProvider>
+      <AppInner />
+    </ReactFlowProvider>
   );
 }
 

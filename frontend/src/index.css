@@ -1,11 +1,10 @@
-/* ===========================
+/* ============================
    GLOBAL STYLES & THEME SYSTEM
-   =========================== */
+   ============================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Light theme (default) */
   --bg-primary: #f8fafc;
   --bg-secondary: #ffffff;
   --bg-tertiary: #f1f5f9;
@@ -67,9 +66,7 @@
   --field-border: #2d3548;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -82,27 +79,17 @@ body {
   overflow: hidden;
 }
 
-code {
-  font-family: 'JetBrains Mono', 'Fira Code', source-code-pro, Menlo, Monaco, monospace;
-}
-
-/* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: var(--border-secondary);
-  border-radius: 4px;
-}
+::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
 
-/* React Flow customizations */
-.react-flow {
-  background: var(--bg-canvas);
-}
+/* ============================
+   REACT FLOW CUSTOMIZATIONS
+   ============================ */
 
-.react-flow__background {
-  background: var(--bg-canvas);
-}
+.react-flow { background: var(--bg-canvas); }
+.react-flow__background { background: var(--bg-canvas); }
 
 .react-flow__controls {
   box-shadow: var(--shadow-md) !important;
@@ -119,13 +106,8 @@ code {
   height: 32px !important;
 }
 
-.react-flow__controls button:hover {
-  background: var(--bg-tertiary) !important;
-}
-
-.react-flow__controls button svg {
-  fill: var(--text-primary) !important;
-}
+.react-flow__controls button:hover { background: var(--bg-tertiary) !important; }
+.react-flow__controls button svg { fill: var(--text-primary) !important; }
 
 .react-flow__minimap {
   border-radius: 10px !important;
@@ -135,14 +117,32 @@ code {
   background: var(--bg-secondary) !important;
 }
 
+.react-flow__attribution { display: none !important; }
+
+/* ============================
+   EDGES & CONNECTIONS
+   ============================ */
+
 .react-flow__edge-path {
   stroke: var(--accent-primary);
   stroke-width: 2;
+  transition: stroke-width 0.15s;
 }
 
-.react-flow__edge.cycle-edge .react-flow__edge-path {
-  stroke: var(--danger) !important;
+.react-flow__edge:hover .react-flow__edge-path {
   stroke-width: 3;
+  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4));
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+}
+
+.react-flow__edge.cycle-edge .react-flow__edge-path,
+.cycle-edge .react-flow__edge-path {
+  stroke: var(--danger) !important;
+  stroke-width: 3 !important;
   animation: cyclePulse 1.5s ease-in-out infinite;
 }
 
@@ -151,53 +151,95 @@ code {
   50% { opacity: 0.5; stroke-width: 4; }
 }
 
-.react-flow__handle {
-  transition: transform 0.15s, background 0.15s;
-  border: 2px solid var(--bg-secondary) !important;
+/* Animated edge flow */
+.react-flow__edge.animated path,
+.animated-edge {
+  stroke-dasharray: 5;
+  animation: dashFlow 0.6s linear infinite;
 }
 
-.react-flow__handle:hover {
-  transform: scale(1.4);
+@keyframes dashFlow {
+  to { stroke-dashoffset: -10; }
 }
 
-.react-flow__attribution {
-  display: none !important;
+/* ============================
+   CONNECTION HANDLES
+   ============================ */
+
+.react-flow__handle,
+.custom-handle {
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s !important;
+  cursor: crosshair !important;
 }
 
-/* Selection */
+.custom-handle:hover {
+  transform: scale(1.5) !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+.react-flow__handle.connecting {
+  background: var(--success) !important;
+  transform: scale(1.5);
+}
+
+.react-flow__handle.connectionindicator {
+  animation: handlePulse 1s ease-in-out infinite;
+}
+
+@keyframes handlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+/* Connection line being drawn */
+.react-flow__connection-path {
+  stroke: var(--accent-primary);
+  stroke-width: 2.5;
+  stroke-dasharray: 5 5;
+  animation: dashFlow 0.6s linear infinite;
+}
+
+/* ============================
+   NODE STYLES
+   ============================ */
+
+.react-flow__node {
+  transition: filter 0.15s;
+}
+
 .react-flow__node.selected .node-card {
-  box-shadow: 0 0 0 2px var(--accent-primary), var(--shadow-lg) !important;
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -1px;
+  box-shadow: var(--shadow-lg) !important;
 }
 
-/* Animations */
+.node-card {
+  transition: box-shadow 0.2s ease, outline 0.15s;
+}
+
+/* ============================
+   ANIMATIONS
+   ============================ */
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
+/* ============================
+   BUTTONS & INPUTS
+   ============================ */
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.fade-in { animation: fadeIn 0.3s ease-out; }
-.slide-in-left { animation: slideInLeft 0.3s ease-out; }
-
-/* Button base */
 .btn {
   font-family: inherit;
   font-weight: 600;
@@ -215,6 +257,7 @@ code {
 
 .btn:hover { transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
+.btn:disabled { cursor: not-allowed; transform: none !important; }
 
 .btn-primary {
   background: var(--accent-gradient);
@@ -251,7 +294,6 @@ code {
   padding: 0;
 }
 
-/* Input base */
 .input-base {
   background: var(--field-bg);
   border: 1px solid var(--field-border);
@@ -270,7 +312,10 @@ code {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-/* Empty state */
+/* ============================
+   EMPTY STATE
+   ============================ */
+
 .empty-state {
   position: absolute;
   inset: 0;
@@ -285,7 +330,10 @@ code {
   padding: 20px;
 }
 
-/* Modal */
+/* ============================
+   MODALS
+   ============================ */
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -310,10 +358,11 @@ code {
   border: 1px solid var(--border-primary);
 }
 
-/* Tooltip */
-.tooltip {
-  position: relative;
-}
+/* ============================
+   TOOLTIPS
+   ============================ */
+
+.tooltip { position: relative; }
 
 .tooltip::after {
   content: attr(data-tooltip);
@@ -331,21 +380,46 @@ code {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s;
-  z-index: 100;
+  z-index: 200;
 }
 
 .tooltip:hover::after { opacity: 1; }
 
-/* Node card hover */
-.node-card {
-  transition: box-shadow 0.2s ease, transform 0.15s ease;
+/* ============================
+   EDGE TOOLBAR — FLOATING
+   ============================ */
+
+.edge-toolbar {
+  backdrop-filter: blur(10px);
+  user-select: none;
 }
 
-.node-card:hover {
-  box-shadow: var(--shadow-lg);
-}
+/* ============================
+   TOAST CONTAINER
+   ============================ */
 
-/* Toast container override */
 .toast-container > div {
   font-family: 'Inter', sans-serif !important;
+}
+
+/* ============================
+   ALIGNMENT GUIDES
+   ============================ */
+
+.alignment-guide {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.alignment-guide-v {
+  width: 1px;
+  background: var(--accent-primary);
+  box-shadow: 0 0 4px rgba(99, 102, 241, 0.5);
+}
+
+.alignment-guide-h {
+  height: 1px;
+  background: var(--accent-primary);
+  box-shadow: 0 0 4px rgba(99, 102, 241, 0.5);
 }

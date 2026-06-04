@@ -1,5 +1,4 @@
-// nodes/BaseNode.js — 8-way resize WITH proportional content scaling
-// Text, padding, icons all scale with node size (Figma-like zoom)
+// nodes/BaseNode.js — 8-way resize + content scaling + REFINED CONNECTION POINTS
 
 import { useState, useRef, useCallback, useMemo } from 'react';
 import { Handle, Position } from 'reactflow';
@@ -20,20 +19,12 @@ const DEFAULT_WIDTH = 240;
 const DEFAULT_HEIGHT = 180;
 
 export const BaseNode = ({
-  id,
-  data,
-  title,
-  icon,
+  id, data, title, icon,
   color = 'var(--accent-primary)',
-  inputs = [],
-  outputs = [],
-  fields = [],
-  children,
+  inputs = [], outputs = [], fields = [], children,
   width: defaultWidth = DEFAULT_WIDTH,
-  minWidth = 160,
-  maxWidth = 700,
-  minHeight = 100,
-  maxHeight = 800,
+  minWidth = 160, maxWidth = 700,
+  minHeight = 100, maxHeight = 800,
   resizable = true,
 }) => {
   const updateNodeField = useStore((state) => state.updateNodeField);
@@ -45,24 +36,19 @@ export const BaseNode = ({
   const [isResizing, setIsResizing] = useState(false);
   const wrapperRef = useRef(null);
 
-  // CONTENT SCALE FACTOR — scales with the smaller of width/height ratio
-  // Use geometric mean for balanced scaling in both dimensions
   const scale = useMemo(() => {
     const widthScale = width / defaultWidth;
     const heightScale = height ? height / DEFAULT_HEIGHT : widthScale;
-    // Use the average so scaling feels natural in both dimensions
     const avg = (widthScale + heightScale) / 2;
     return Math.max(0.6, Math.min(2.2, avg));
   }, [width, height, defaultWidth]);
 
-  // 8-way resize
   const onResize = useCallback((e, direction) => {
     e.stopPropagation();
     e.preventDefault();
     setIsResizing(true);
 
-    const startMouseX = e.clientX;
-    const startMouseY = e.clientY;
+    const startMouseX = e.clientX, startMouseY = e.clientY;
     const startW = wrapperRef.current.offsetWidth;
     const startH = wrapperRef.current.offsetHeight;
     const startNode = useStore.getState().nodes.find((n) => n.id === id);
@@ -72,8 +58,7 @@ export const BaseNode = ({
     let finalW = startW, finalH = startH;
 
     const onMove = (ev) => {
-      const dx = ev.clientX - startMouseX;
-      const dy = ev.clientY - startMouseY;
+      const dx = ev.clientX - startMouseX, dy = ev.clientY - startMouseY;
       let newW = startW, newH = startH, newX = startX, newY = startY;
 
       if (direction.includes('e')) newW = Math.max(minWidth, Math.min(maxWidth, startW + dx));
@@ -87,11 +72,8 @@ export const BaseNode = ({
         newY = startY + (startH - newH);
       }
 
-      finalW = newW;
-      finalH = newH;
-      setWidth(newW);
-      setHeight(newH);
-
+      finalW = newW; finalH = newH;
+      setWidth(newW); setHeight(newH);
       if (newX !== startX || newY !== startY) setNodePosition(id, newX, newY);
     };
 
@@ -111,10 +93,8 @@ export const BaseNode = ({
     else updateNodeField(id, fieldName, value);
   };
 
-  // SCALED dimensions
   const px = (n) => `${n * scale}px`;
 
-  // Scaled input style — applied inline to override .input-base defaults
   const scaledInputStyle = {
     fontSize: px(12),
     padding: `${px(7)} ${px(10)}`,
@@ -139,37 +119,88 @@ export const BaseNode = ({
     return (
       <div key={idx} style={{ marginBottom: px(8) }}>
         {field.label && (
-          <label
-            style={{
-              display: 'block',
-              fontSize: px(10),
-              fontWeight: 700,
-              color: 'var(--text-tertiary)',
-              marginBottom: px(4),
-              textTransform: 'uppercase',
-              letterSpacing: '0.6px',
-            }}
-          >
-            {field.label}
-          </label>
+          <label style={{
+            display: 'block', fontSize: px(10), fontWeight: 700,
+            color: 'var(--text-tertiary)', marginBottom: px(4),
+            textTransform: 'uppercase', letterSpacing: '0.6px',
+          }}>{field.label}</label>
         )}
         {field.type === 'select' ? (
           <select {...commonProps}>
-            {field.options.map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
-            ))}
+            {field.options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
           </select>
         ) : field.type === 'textarea' ? (
           <textarea {...commonProps} rows={field.rows || 3} style={{ ...scaledInputStyle, resize: 'none' }} />
-        ) : field.type === 'checkbox' ? (
-          <label style={{ display: 'flex', alignItems: 'center', gap: px(6), fontSize: px(12), color: 'var(--text-secondary)' }}>
-            <input type="checkbox" checked={!!field.value}
-              onChange={(e) => handleFieldChange(field.name, e.target.checked, field.onChange)}
-              style={{ transform: `scale(${scale})` }} />
-            {field.checkboxLabel}
-          </label>
         ) : (
           <input type={field.type || 'text'} {...commonProps} />
+        )}
+      </div>
+    );
+  };
+
+  // Refined handle rendering with bigger hover hit area
+  const renderHandle = (handle, idx, isInput, total) => {
+    const handleId = `${id}-${handle.id}`;
+    return (
+      <div
+        key={`${isInput ? 'in' : 'out'}-${handle.id}`}
+        style={{
+          position: 'absolute',
+          [isInput ? 'left' : 'right']: -10,
+          top: handle.style?.top ?? `${((idx + 1) * 100) / (total + 1)}%`,
+          transform: 'translateY(-50%)',
+          width: 20,
+          height: 20,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isInput ? 'flex-end' : 'flex-start',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }}
+      >
+        {/* Invisible larger hover hit zone */}
+        <div className="handle-hit-zone" style={{
+          position: 'absolute',
+          inset: -8,
+          borderRadius: '50%',
+          pointerEvents: 'none',
+        }} />
+
+        {/* Actual react-flow handle */}
+        <Handle
+          type={isInput ? 'target' : 'source'}
+          position={isInput ? Position.Left : Position.Right}
+          id={handleId}
+          className="custom-handle"
+          style={{
+            background: color,
+            width: 12,
+            height: 12,
+            border: '2px solid var(--node-bg)',
+            position: 'relative',
+            transform: 'none',
+            top: 'auto',
+            left: 'auto',
+            right: 'auto',
+            pointerEvents: 'all',
+          }}
+        />
+
+        {/* Label */}
+        {handle.label && (
+          <span style={{
+            position: 'absolute',
+            [isInput ? 'right' : 'left']: 22,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            fontSize: px(10),
+            color: 'var(--text-tertiary)',
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            fontWeight: 500,
+          }}>
+            {handle.label}
+          </span>
         )}
       </div>
     );
@@ -185,134 +216,60 @@ export const BaseNode = ({
         fontFamily: 'Inter, sans-serif',
       }}
     >
-      <div
-        className="node-card"
-        style={{
-          width: '100%',
-          height: '100%',
-          background: 'var(--node-bg)',
-          border: '1px solid var(--node-border)',
-          borderRadius: px(12),
-          boxShadow: isResizing ? 'var(--shadow-lg)' : 'var(--shadow-md)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          outline: isResizing ? `2px solid var(--accent-primary)` : 'none',
-          outlineOffset: '-1px',
-          transition: 'box-shadow 0.15s, outline 0.15s',
-        }}
-      >
-        {/* Scaled Header */}
-        <div
-          style={{
-            background: color,
-            padding: `${px(10)} ${px(14)}`,
-            color: '#fff',
-            fontSize: px(13),
-            fontWeight: 700,
-            display: 'flex',
-            alignItems: 'center',
-            gap: px(8),
-            letterSpacing: '0.2px',
-            flexShrink: 0,
-          }}
-        >
+      <div className="node-card" style={{
+        width: '100%', height: '100%',
+        background: 'var(--node-bg)',
+        border: '1px solid var(--node-border)',
+        borderRadius: px(12),
+        boxShadow: isResizing ? 'var(--shadow-lg)' : 'var(--shadow-md)',
+        overflow: 'hidden',
+        display: 'flex', flexDirection: 'column',
+        outline: isResizing ? `2px solid var(--accent-primary)` : 'none',
+        outlineOffset: '-1px',
+        transition: 'box-shadow 0.15s, outline 0.15s',
+      }}>
+        <div style={{
+          background: color,
+          padding: `${px(10)} ${px(14)}`,
+          color: '#fff',
+          fontSize: px(13),
+          fontWeight: 700,
+          display: 'flex', alignItems: 'center', gap: px(8),
+          letterSpacing: '0.2px',
+          flexShrink: 0,
+        }}>
           {icon && (
             <span style={{ display: 'flex', transform: `scale(${scale})`, transformOrigin: 'left center' }}>
               {icon}
             </span>
           )}
           <span style={{
-            flex: 1,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            marginLeft: scale > 1 ? px(4) : 0,
+            flex: 1, overflow: 'hidden', textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap', marginLeft: scale > 1 ? px(4) : 0,
           }}>
             {title}
           </span>
           <span style={{
-            fontSize: px(10),
-            opacity: 0.75,
-            fontWeight: 500,
-            maxWidth: px(100),
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
+            fontSize: px(10), opacity: 0.75, fontWeight: 500,
+            maxWidth: px(100), overflow: 'hidden',
+            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>
             {id}
           </span>
         </div>
 
-        {/* Scaled Body */}
-        <div
-          className="nowheel"
-          style={{
-            padding: `${px(12)} ${px(14)}`,
-            flex: 1,
-            overflow: 'auto',
-            minHeight: 0,
-          }}
-        >
+        <div className="nowheel" style={{
+          padding: `${px(12)} ${px(14)}`,
+          flex: 1, overflow: 'auto', minHeight: 0,
+        }}>
           {fields.map(renderField)}
           {typeof children === 'function' ? children({ scale, px }) : children}
         </div>
       </div>
 
-      {/* Handles (unscaled — must remain consistent for connections) */}
-      {inputs.map((handle, idx) => (
-        <Handle
-          key={`in-${handle.id}`}
-          type="target"
-          position={Position.Left}
-          id={`${id}-${handle.id}`}
-          style={{
-            top: handle.style?.top ?? `${((idx + 1) * 100) / (inputs.length + 1)}%`,
-            background: color,
-            width: '11px',
-            height: '11px',
-            ...handle.style,
-          }}
-        >
-          {handle.label && (
-            <span style={{
-              position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
-              fontSize: px(10), color: 'var(--text-tertiary)',
-              whiteSpace: 'nowrap', pointerEvents: 'none', fontWeight: 500,
-            }}>
-              {handle.label}
-            </span>
-          )}
-        </Handle>
-      ))}
+      {inputs.map((handle, idx) => renderHandle(handle, idx, true, inputs.length))}
+      {outputs.map((handle, idx) => renderHandle(handle, idx, false, outputs.length))}
 
-      {outputs.map((handle, idx) => (
-        <Handle
-          key={`out-${handle.id}`}
-          type="source"
-          position={Position.Right}
-          id={`${id}-${handle.id}`}
-          style={{
-            top: handle.style?.top ?? `${((idx + 1) * 100) / (outputs.length + 1)}%`,
-            background: color,
-            width: '11px',
-            height: '11px',
-            ...handle.style,
-          }}
-        >
-          {handle.label && (
-            <span style={{
-              position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)',
-              fontSize: px(10), color: 'var(--text-tertiary)',
-              whiteSpace: 'nowrap', pointerEvents: 'none', fontWeight: 500,
-            }}>
-              {handle.label}
-            </span>
-          )}
-        </Handle>
-      ))}
-
-      {/* 8-way resize handles */}
       {resizable && RESIZE_HANDLES.map(({ dir, cursor, style }) => (
         <div
           key={dir}

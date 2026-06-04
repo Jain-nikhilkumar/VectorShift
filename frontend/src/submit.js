@@ -1,11 +1,9 @@
-// submit.js — Works on localhost AND Vercel automatically
+// submit.js — Backend integration + confetti on valid DAG
 
 import { useStore } from './store';
 import toast from 'react-hot-toast';
+import { fireConfetti } from './utils/confetti';
 
-// Auto-detect environment:
-// - On localhost → use local backend at :8000
-// - On Vercel (production) → use relative /api path (same domain)
 const API_URL =
   window.location.hostname === 'localhost'
     ? 'http://localhost:8000/pipelines/parse'
@@ -41,7 +39,9 @@ export const submitPipeline = async () => {
     }
 
     if (data.is_dag) {
-      toast.success('Pipeline is a valid DAG', { duration: 2500 });
+      toast.success('Pipeline is a valid DAG! 🎉', { duration: 2500 });
+      // CONFETTI!
+      fireConfetti();
     } else {
       toast.error('Cycle detected in pipeline', { duration: 2500 });
     }

@@ -1,32 +1,49 @@
-// ui.js — Main pipeline canvas
+// ui.js — Main canvas with custom edges, context menu, grid settings
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import ReactFlow, { Controls, Background, MiniMap, BackgroundVariant } from 'reactflow';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
 import { NODE_TYPES, getNodeColor } from './nodes/nodeRegistry';
+import { EditableEdge } from './edges/EditableEdge';
 import { EmptyState } from './components/EmptyState';
+import { ContextMenu } from './components/ContextMenu';
+import { useLiveDAG } from './hooks/useLiveDAG';
 import 'reactflow/dist/style.css';
 
 const proOptions = { hideAttribution: true };
 
-const selector = (state) => ({
-  nodes: state.nodes,
-  edges: state.edges,
-  getNodeID: state.getNodeID,
-  addNode: state.addNode,
-  onNodesChange: state.onNodesChange,
-  onEdgesChange: state.onEdgesChange,
-  onConnect: state.onConnect,
+const edgeTypes = {
+  editable: EditableEdge,
+};
+
+const selector = (s) => ({
+  nodes: s.nodes,
+  edges: s.edges,
+  getNodeID: s.getNodeID,
+  addNode: s.addNode,
+  onNodesChange: s.onNodesChange,
+  onEdgesChange: s.onEdgesChange,
+  onConnect: s.onConnect,
+  setCycleEdges: s.setCycleEdges,
 });
 
-export const PipelineUI = () => {
+export const PipelineUI = ({ gridSettings }) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
   const {
     nodes, edges, getNodeID, addNode,
-    onNodesChange, onEdgesChange, onConnect,
+    onNodesChange, onEdgesChange, onConnect, setCycleEdges,
   } = useStore(selector, shallow);
+
+  // Live DAG detection — auto-highlight cycle edges
+  const { cycleEdgeIds } = useLiveDAG();
+
+  useEffect(() => {
+    setCycleEdges(cycleEdgeIds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cycleEdgeIds.join(',')]);
 
   const onDrop = useCallback(
     (event) => {
@@ -58,6 +75,30 @@ export const PipelineUI = () => {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
+  // Context menus
+  const onNodeContextMenu = useCallback((event, node) => {
+    event.preventDefault();
+    setContextMenu({ type: 'node', x: event.clientX, y: event.clientY, targetId: node.id });
+  }, []);
+
+  const onEdgeContextMenu = useCallback((event, edge) => {
+    event.preventDefault();
+    setContextMenu({ type: 'edge', x: event.clientX, y: event.clientY, targetId: edge.id });
+  }, []);
+
+  const onPaneContextMenu = useCallback((event) => {
+    event.preventDefault();
+    setContextMenu({ type: 'canvas', x: event.clientX, y: event.clientY });
+  }, []);
+
+  const onPaneClick = useCallback(() => setContextMenu(null), []);
+
+  // Grid configuration
+  const showBackground = gridSettings.gridType !== 'none';
+  const backgroundVariant = gridSettings.gridType === 'lines'
+    ? BackgroundVariant.Lines
+    : BackgroundVariant.Dots;
+
   return (
     <div ref={reactFlowWrapper} style={{ flex: 1, position: 'relative' }}>
       <ReactFlow
@@ -70,31 +111,40 @@ export const PipelineUI = () => {
         onDragOver={onDragOver}
         onInit={setReactFlowInstance}
         nodeTypes={NODE_TYPES}
+        edgeTypes={edgeTypes}
         proOptions={proOptions}
         connectionLineType="smoothstep"
-        defaultEdgeOptions={{ type: 'smoothstep', animated: true }}
+        connectionLineStyle={{ stroke: 'var(--accent-primary)', strokeWidth: 2 }}
+        defaultEdgeOptions={{ type: 'editable' }}
         fitView
-        snapToGrid
-        snapGrid={[16, 16]}
-        deleteKeyCode={null}  // we handle delete via shortcuts hook
+        snapToGrid={gridSettings.snapEnabled}
+        snapGrid={[gridSettings.snapSize, gridSettings.snapSize]}
+        deleteKeyCode={null}  // handled by shortcuts hook
         multiSelectionKeyCode="Shift"
+        onNodeContextMenu={onNodeContextMenu}
+        onEdgeContextMenu={onEdgeContextMenu}
+        onPaneContextMenu={onPaneContextMenu}
+        onPaneClick={onPaneClick}
+        elevateEdgesOnSelect
       >
-        {/* Whiteboard-style dot grid */}
-        <Background
-          variant={BackgroundVariant.Dots}
-          gap={20}
-          size={1.5}
-          color="var(--bg-dot)"
-        />
+        {showBackground && (
+          <Background
+            variant={backgroundVariant}
+            gap={20}
+            size={gridSettings.gridType === 'lines' ? 1 : 1.5}
+            color="var(--bg-dot)"
+          />
+        )}
         <Controls showInteractive={false} />
         <MiniMap
           nodeColor={(n) => getNodeColor(n.type)}
           maskColor="rgba(0,0,0,0.1)"
-          pannable
-          zoomable
+          pannable zoomable
         />
         {nodes.length === 0 && <EmptyState />}
       </ReactFlow>
+
+      <ContextMenu menu={contextMenu} onClose={() => setContextMenu(null)} />
     </div>
   );
 };
