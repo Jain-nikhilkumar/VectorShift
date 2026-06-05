@@ -10,6 +10,7 @@ import {
   CheckCircle2, AlertCircle, Magnet,
 } from 'lucide-react';
 import { exportToJSON, importFromJSON } from '../utils/pipelineStorage';
+import { ThemeSwitcher } from './ThemeSwitcher';
 import toast from 'react-hot-toast';
 
 export const Header = ({ onSubmit, onShowShortcuts, gridSettings, updateGridSettings }) => {
@@ -86,11 +87,11 @@ export const Header = ({ onSubmit, onShowShortcuts, gridSettings, updateGridSett
 
       <button className="btn btn-ghost btn-icon tooltip" data-tooltip="Undo (Ctrl+Z)"
         onClick={undo} disabled={!canUndo()} style={{ opacity: canUndo() ? 1 : 0.4 }}>
-        <Undo2 size={16} />
+        <Undo2 size={18} />
       </button>
       <button className="btn btn-ghost btn-icon tooltip" data-tooltip="Redo (Ctrl+Shift+Z)"
         onClick={redo} disabled={!canRedo()} style={{ opacity: canRedo() ? 1 : 0.4 }}>
-        <Redo2 size={16} />
+        <Redo2 size={18} />
       </button>
 
       <Divider />
@@ -102,7 +103,7 @@ export const Header = ({ onSubmit, onShowShortcuts, gridSettings, updateGridSett
         <Upload size={15} /> Import
       </button>
       <button className="btn btn-ghost btn-icon tooltip" data-tooltip="Clear canvas" onClick={handleClear}>
-        <Trash2 size={16} />
+        <Trash2 size={18} />
       </button>
 
       <Divider />
@@ -167,23 +168,23 @@ export const Header = ({ onSubmit, onShowShortcuts, gridSettings, updateGridSett
       {/* Live DAG status badge */}
       <div
         style={{
-          padding: '6px 12px',
+          padding: '7px 13px',
           background: isDag ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
           color: isDag ? '#10b981' : '#ef4444',
           border: `1px solid ${isDag ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
           borderRadius: '8px',
-          fontSize: '11px', fontWeight: 700,
+          fontSize: '12px', fontWeight: 700,
           display: 'flex', alignItems: 'center', gap: '6px',
           letterSpacing: '0.3px',
         }}
       >
-        {isDag ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />}
+        {isDag ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
         <span>{isDag ? 'Valid DAG' : `${cycleEdgeIds.length} cycle${cycleEdgeIds.length === 1 ? '' : 's'}`}</span>
       </div>
 
       <div style={{
-        padding: '6px 10px', background: 'var(--bg-tertiary)', borderRadius: '8px',
-        fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 600,
+        padding: '7px 11px', background: 'var(--bg-tertiary)', borderRadius: '8px',
+        fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600,
         display: 'flex', gap: '8px',
       }}>
         <span>●{nodes.length}</span>
@@ -192,13 +193,15 @@ export const Header = ({ onSubmit, onShowShortcuts, gridSettings, updateGridSett
       </div>
 
       <button className="btn btn-ghost btn-icon tooltip" data-tooltip="Keyboard shortcuts" onClick={onShowShortcuts}>
-        <KeyRound size={16} />
+        <KeyRound size={18} />
       </button>
+
+      <ThemeSwitcher />
 
       <button className="btn btn-ghost btn-icon tooltip"
         data-tooltip={theme === 'light' ? 'Dark mode' : 'Light mode'}
         onClick={toggleTheme}>
-        {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+        {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
       </button>
 
       <button className="btn btn-primary" onClick={onSubmit}>

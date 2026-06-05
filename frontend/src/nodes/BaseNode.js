@@ -1,8 +1,10 @@
-// nodes/BaseNode.js — 8-way resize + content scaling + REFINED CONNECTION POINTS
+// nodes/BaseNode.js — STYLE-AWARE
+// Renders Liquid Glass OR Neo Brutalism based on current theme style
 
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
 import { useStore } from '../store';
+import { useThemeStyle } from '../hooks/useThemeStyle';
 
 const RESIZE_HANDLES = [
   { dir: 'n',  cursor: 'ns-resize',   style: { top: -4, left: '50%', transform: 'translateX(-50%)', width: 24, height: 8 } },
@@ -18,26 +20,35 @@ const RESIZE_HANDLES = [
 const DEFAULT_WIDTH = 240;
 const DEFAULT_HEIGHT = 180;
 
+const hexToRgba = (hex, alpha) => {
+  if (!hex || typeof hex !== 'string') return `rgba(99,102,241,${alpha})`;
+  const m = hex.replace('#', '').match(/.{2}/g);
+  if (!m) return hex;
+  const [r, g, b] = m.map((c) => parseInt(c, 16));
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 export const BaseNode = ({
   id, data, title, icon,
-  color = 'var(--accent-primary)',
+  color = '#6366f1',
   inputs = [], outputs = [], fields = [], children,
   width: defaultWidth = DEFAULT_WIDTH,
   minWidth = 160, maxWidth = 700,
   minHeight = 100, maxHeight = 800,
   resizable = true,
 }) => {
-  const updateNodeField = useStore((state) => state.updateNodeField);
-  const updateNodeSize = useStore((state) => state.updateNodeSize);
-  const setNodePosition = useStore((state) => state.setNodePosition);
+  const updateNodeField = useStore((s) => s.updateNodeField);
+  const updateNodeSize = useStore((s) => s.updateNodeSize);
+  const setNodePosition = useStore((s) => s.setNodePosition);
+  const { style: themeStyle } = useThemeStyle();
+  const isBrutalist = themeStyle === 'neo-brutalism';
 
   const [width, setWidth] = useState(data?.width || defaultWidth);
   const [height, setHeight] = useState(data?.height || null);
   const [isResizing, setIsResizing] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const wrapperRef = useRef(null);
 
-  // Sync external size changes (e.g. from TextNode auto-resize) to internal state
-  // Skip while user is actively dragging to avoid fighting their input
   useEffect(() => {
     if (isResizing) return;
     if (data?.width && data.width !== width) setWidth(data.width);
@@ -104,18 +115,34 @@ export const BaseNode = ({
 
   const px = (n) => `${n * scale}px`;
 
-  const scaledInputStyle = {
-    fontSize: px(12),
-    padding: `${px(7)} ${px(10)}`,
-    borderRadius: px(6),
-    width: '100%',
-    background: 'var(--field-bg)',
-    border: '1px solid var(--field-border)',
-    color: 'var(--text-primary)',
-    outline: 'none',
-    fontFamily: 'inherit',
-    boxSizing: 'border-box',
-  };
+  const scaledInputStyle = isBrutalist
+    ? {
+        fontSize: px(12.5),
+        fontWeight: 500,
+        padding: `${px(7)} ${px(10)}`,
+        borderRadius: px(5),
+        width: '100%',
+        background: 'var(--field-bg)',
+        border: '2px solid var(--border-primary)',
+        color: 'var(--text-primary)',
+        outline: 'none',
+        fontFamily: 'inherit',
+        boxSizing: 'border-box',
+      }
+    : {
+        fontSize: px(12),
+        padding: `${px(7)} ${px(10)}`,
+        borderRadius: px(8),
+        width: '100%',
+        background: 'var(--field-bg)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: '1px solid var(--field-border)',
+        color: 'var(--text-primary)',
+        outline: 'none',
+        fontFamily: 'inherit',
+        boxSizing: 'border-box',
+      };
 
   const renderField = (field, idx) => {
     const commonProps = {
@@ -126,12 +153,16 @@ export const BaseNode = ({
     };
 
     return (
-      <div key={idx} style={{ marginBottom: px(8) }}>
+      <div key={idx} style={{ marginBottom: px(isBrutalist ? 10 : 8) }}>
         {field.label && (
           <label style={{
-            display: 'block', fontSize: px(10), fontWeight: 700,
-            color: 'var(--text-tertiary)', marginBottom: px(4),
-            textTransform: 'uppercase', letterSpacing: '0.6px',
+            display: 'block',
+            fontSize: px(10),
+            fontWeight: isBrutalist ? 800 : 700,
+            color: isBrutalist ? 'var(--text-primary)' : 'var(--text-tertiary)',
+            marginBottom: px(4),
+            textTransform: 'uppercase',
+            letterSpacing: isBrutalist ? '0.8px' : '0.6px',
           }}>{field.label}</label>
         )}
         {field.type === 'select' ? (
@@ -147,7 +178,6 @@ export const BaseNode = ({
     );
   };
 
-  // Refined handle rendering with bigger hover hit area
   const renderHandle = (handle, idx, isInput, total) => {
     const handleId = `${id}-${handle.id}`;
     return (
@@ -167,15 +197,6 @@ export const BaseNode = ({
           zIndex: 1,
         }}
       >
-        {/* Invisible larger hover hit zone */}
-        <div className="handle-hit-zone" style={{
-          position: 'absolute',
-          inset: -8,
-          borderRadius: '50%',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Actual react-flow handle */}
         <Handle
           type={isInput ? 'target' : 'source'}
           position={isInput ? Position.Left : Position.Right}
@@ -183,19 +204,19 @@ export const BaseNode = ({
           className="custom-handle"
           style={{
             background: color,
+            color: color,
             width: 12,
             height: 12,
-            border: '2px solid var(--node-bg)',
+            border: isBrutalist
+              ? '2px solid var(--border-primary)'
+              : '2px solid var(--glass-border-strong)',
             position: 'relative',
             transform: 'none',
-            top: 'auto',
-            left: 'auto',
-            right: 'auto',
+            top: 'auto', left: 'auto', right: 'auto',
             pointerEvents: 'all',
+            borderRadius: '50%',
           }}
         />
-
-        {/* Label */}
         {handle.label && (
           <span style={{
             position: 'absolute',
@@ -203,10 +224,12 @@ export const BaseNode = ({
             top: '50%',
             transform: 'translateY(-50%)',
             fontSize: px(10),
-            color: 'var(--text-tertiary)',
+            color: isBrutalist ? 'var(--text-secondary)' : 'var(--text-tertiary)',
             whiteSpace: 'nowrap',
             pointerEvents: 'none',
-            fontWeight: 500,
+            fontWeight: isBrutalist ? 700 : 500,
+            textTransform: isBrutalist ? 'uppercase' : 'none',
+            letterSpacing: isBrutalist ? '0.4px' : '0',
           }}>
             {handle.label}
           </span>
@@ -214,6 +237,76 @@ export const BaseNode = ({
       </div>
     );
   };
+
+  const cardStyle = isBrutalist
+    ? {
+        width: '100%',
+        height: '100%',
+        background: 'var(--node-bg)',
+        border: '2.5px solid var(--border-primary)',
+        borderRadius: px(10),
+        boxShadow: isResizing
+          ? `6px 6px 0 var(--color-pink, #ff2d87)`
+          : isHovered
+            ? `6px 6px 0 var(--border-primary)`
+            : `4px 4px 0 var(--border-primary)`,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'box-shadow 0.1s, transform 0.1s',
+        transform: isHovered ? 'translate(-1px, -1px)' : 'translate(0, 0)',
+      }
+    : {
+        width: '100%',
+        height: '100%',
+        background: 'var(--node-bg)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+        border: '1px solid var(--node-border)',
+        borderRadius: px(14),
+        boxShadow: isResizing
+          ? `0 0 0 2px var(--accent-primary), var(--shadow-lg), inset 0 1px 0 var(--glass-shadow-inset-top)`
+          : `var(--shadow-md), inset 0 1px 0 var(--glass-shadow-inset-top), inset 0 -1px 0 var(--glass-shadow-inset-bottom)`,
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        transition: 'box-shadow 0.15s',
+        position: 'relative',
+      };
+
+  const headerStyle = isBrutalist
+    ? {
+        background: color,
+        padding: `${px(10)} ${px(14)}`,
+        color: '#000',
+        fontSize: px(13),
+        fontWeight: 800,
+        display: 'flex',
+        alignItems: 'center',
+        gap: px(8),
+        letterSpacing: '0.3px',
+        flexShrink: 0,
+        borderBottom: '2.5px solid var(--border-primary)',
+        textTransform: 'uppercase',
+      }
+    : {
+        background: hexToRgba(color, 0.85),
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        padding: `${px(10)} ${px(14)}`,
+        color: '#fff',
+        fontSize: px(13),
+        fontWeight: 700,
+        display: 'flex',
+        alignItems: 'center',
+        gap: px(8),
+        letterSpacing: '0.2px',
+        flexShrink: 0,
+        position: 'relative',
+        zIndex: 2,
+        borderBottom: '1px solid rgba(255, 255, 255, 0.18)',
+        textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+      };
 
   return (
     <div
@@ -224,52 +317,96 @@ export const BaseNode = ({
         position: 'relative',
         fontFamily: 'Inter, sans-serif',
       }}
+      onMouseEnter={() => isBrutalist && setIsHovered(true)}
+      onMouseLeave={() => isBrutalist && setIsHovered(false)}
     >
-      <div className="node-card" style={{
-        width: '100%', height: '100%',
-        background: 'var(--node-bg)',
-        border: '1px solid var(--node-border)',
-        borderRadius: px(12),
-        boxShadow: isResizing ? 'var(--shadow-lg)' : 'var(--shadow-md)',
-        overflow: 'hidden',
-        display: 'flex', flexDirection: 'column',
-        outline: isResizing ? `2px solid var(--accent-primary)` : 'none',
-        outlineOffset: '-1px',
-        transition: 'box-shadow 0.15s, outline 0.15s',
-      }}>
-        <div style={{
-          background: color,
-          padding: `${px(10)} ${px(14)}`,
-          color: '#fff',
-          fontSize: px(13),
-          fontWeight: 700,
-          display: 'flex', alignItems: 'center', gap: px(8),
-          letterSpacing: '0.2px',
-          flexShrink: 0,
-        }}>
+      <div className="node-card" style={cardStyle}>
+        {/* Liquid Glass: light refraction strip on top */}
+        {!isBrutalist && (
+          <div style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0,
+            height: '40%',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.12), transparent)',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }} />
+        )}
+
+        <div style={headerStyle}>
+          {!isBrutalist && (
+            <div style={{
+              position: 'absolute',
+              top: 0, left: 0, right: 0,
+              height: '50%',
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.18), transparent)',
+              pointerEvents: 'none',
+            }} />
+          )}
+
           {icon && (
-            <span style={{ display: 'flex', transform: `scale(${scale})`, transformOrigin: 'left center' }}>
+            <span style={{
+              display: 'flex',
+              transform: `scale(${scale})`,
+              transformOrigin: 'left center',
+              filter: !isBrutalist ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' : 'none',
+              color: isBrutalist ? '#000' : 'inherit',
+              position: 'relative',
+            }}>
               {icon}
             </span>
           )}
           <span style={{
-            flex: 1, overflow: 'hidden', textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap', marginLeft: scale > 1 ? px(4) : 0,
+            flex: 1,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            marginLeft: scale > 1 ? px(4) : 0,
+            position: 'relative',
           }}>
             {title}
           </span>
-          <span style={{
-            fontSize: px(10), opacity: 0.75, fontWeight: 500,
-            maxWidth: px(100), overflow: 'hidden',
-            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          }}>
-            {id}
-          </span>
+          {isBrutalist ? (
+            <span style={{
+              fontSize: px(10),
+              fontWeight: 700,
+              maxWidth: px(100),
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              background: '#000',
+              color: color,
+              padding: `${px(2)} ${px(6)}`,
+              borderRadius: px(3),
+              fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+              textTransform: 'none',
+            }}>
+              {id}
+            </span>
+          ) : (
+            <span style={{
+              fontSize: px(10),
+              opacity: 0.85,
+              fontWeight: 500,
+              maxWidth: px(100),
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              position: 'relative',
+            }}>
+              {id}
+            </span>
+          )}
         </div>
 
         <div className="nowheel" style={{
           padding: `${px(12)} ${px(14)}`,
-          flex: 1, overflow: 'auto', minHeight: 0,
+          flex: 1,
+          overflow: 'auto',
+          minHeight: 0,
+          background: isBrutalist ? 'var(--node-bg)' : 'transparent',
+          position: 'relative',
+          zIndex: 2,
         }}>
           {fields.map(renderField)}
           {typeof children === 'function' ? children({ scale, px }) : children}
@@ -288,11 +425,16 @@ export const BaseNode = ({
             position: 'absolute',
             cursor,
             zIndex: 5,
-            background: dir.length === 2 ? 'var(--accent-primary)' : 'transparent',
-            border: dir.length === 2 ? '2px solid white' : 'none',
-            borderRadius: dir.length === 2 ? '50%' : '2px',
+            background: dir.length === 2
+              ? (isBrutalist ? 'var(--color-pink, #ff2d87)' : 'var(--accent-primary)')
+              : 'transparent',
+            border: dir.length === 2
+              ? (isBrutalist ? '2.5px solid var(--border-primary)' : '2px solid white')
+              : 'none',
+            borderRadius: dir.length === 2 ? (isBrutalist ? 0 : '50%') : '2px',
             opacity: isResizing ? 1 : 0,
             transition: 'opacity 0.15s',
+            boxShadow: dir.length === 2 && !isBrutalist ? '0 0 10px var(--accent-primary)' : 'none',
             ...style,
           }}
           onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}

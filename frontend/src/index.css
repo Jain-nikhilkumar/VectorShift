@@ -1,70 +1,10 @@
-/* ============================
-   GLOBAL STYLES & THEME SYSTEM
-   ============================ */
+/* =========================================
+   VECTORSHIFT — MULTI-STYLE THEME SYSTEM
+   Supports: liquid-glass | neo-brutalism
+   Toggled via [data-style] on <html>
+   ========================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-:root {
-  --bg-primary: #f8fafc;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f5f9;
-  --bg-canvas: #fafbfc;
-  --bg-dot: #cbd5e1;
-
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
-
-  --border-primary: #e2e8f0;
-  --border-secondary: #cbd5e1;
-
-  --accent-primary: #6366f1;
-  --accent-secondary: #8b5cf6;
-  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
-
-  --node-bg: #ffffff;
-  --node-border: #e2e8f0;
-  --field-bg: #f8fafc;
-  --field-border: #e2e8f0;
-
-  --danger: #ef4444;
-  --success: #10b981;
-  --warning: #f59e0b;
-}
-
-[data-theme='dark'] {
-  --bg-primary: #0a0e1a;
-  --bg-secondary: #131826;
-  --bg-tertiary: #1a2030;
-  --bg-canvas: #0f1420;
-  --bg-dot: #2d3548;
-
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #64748b;
-
-  --border-primary: #2d3548;
-  --border-secondary: #374151;
-
-  --accent-primary: #818cf8;
-  --accent-secondary: #a78bfa;
-  --accent-gradient: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
-
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(129, 140, 248, 0.4);
-
-  --node-bg: #1a2030;
-  --node-border: #2d3548;
-  --field-bg: #131826;
-  --field-border: #2d3548;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 * { box-sizing: border-box; }
 
@@ -79,64 +19,364 @@ body {
   overflow: hidden;
 }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
+/* =========================================================================
+   THEME 1: LIQUID GLASS (default)
+   ========================================================================= */
+
+:root,
+:root[data-style='liquid-glass'] {
+  --bg-primary: #f0f1f8;
+  --bg-secondary: rgba(255, 255, 255, 0.65);
+  --bg-tertiary: rgba(255, 255, 255, 0.45);
+  --bg-canvas: #f3f4fb;
+  --bg-hover: rgba(255, 255, 255, 0.85);
+  --bg-dot: rgba(99, 102, 241, 0.18);
+
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-border-strong: rgba(255, 255, 255, 0.8);
+  --glass-shadow-inset-top: rgba(255, 255, 255, 0.8);
+  --glass-shadow-inset-bottom: rgba(0, 0, 0, 0.05);
+
+  --text-primary: #1a1d2e;
+  --text-secondary: #4a5070;
+  --text-tertiary: #8a8fa8;
+
+  --border-primary: rgba(255, 255, 255, 0.5);
+  --border-secondary: rgba(99, 102, 241, 0.2);
+
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-fg: #ffffff;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(99, 102, 241, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 20px 50px rgba(99, 102, 241, 0.15), 0 8px 16px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.4), 0 8px 24px rgba(99, 102, 241, 0.2);
+
+  --node-bg: rgba(255, 255, 255, 0.62);
+  --node-border: rgba(255, 255, 255, 0.6);
+  --field-bg: rgba(255, 255, 255, 0.45);
+  --field-border: rgba(255, 255, 255, 0.5);
+
+  --danger: #f43f5e;
+  --success: #14b8a6;
+  --warning: #f59e0b;
+
+  --aurora-1: #8b5cf6;
+  --aurora-2: #ec4899;
+  --aurora-3: #06b6d4;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+:root[data-style='liquid-glass'][data-theme='dark'] {
+  --bg-primary: #060818;
+  --bg-secondary: rgba(20, 24, 42, 0.55);
+  --bg-tertiary: rgba(20, 24, 42, 0.35);
+  --bg-canvas: #080a1c;
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --bg-dot: rgba(255, 255, 255, 0.06);
+
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-strong: rgba(255, 255, 255, 0.22);
+  --glass-shadow-inset-top: rgba(255, 255, 255, 0.18);
+  --glass-shadow-inset-bottom: rgba(0, 0, 0, 0.4);
+
+  --text-primary: #f0f2fa;
+  --text-secondary: #c8ccdb;
+  --text-tertiary: #7a82a0;
+
+  --border-primary: rgba(255, 255, 255, 0.12);
+  --border-secondary: rgba(255, 255, 255, 0.2);
+
+  --accent-primary: #a78bfa;
+  --accent-secondary: #c084fc;
+  --accent-gradient: linear-gradient(135deg, #a78bfa 0%, #f0abfc 100%);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6), 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 32px rgba(167, 139, 250, 0.5), 0 8px 32px rgba(167, 139, 250, 0.25);
+
+  --node-bg: rgba(28, 32, 52, 0.55);
+  --node-border: rgba(255, 255, 255, 0.12);
+  --field-bg: rgba(255, 255, 255, 0.04);
+  --field-border: rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================================================
+   THEME 2: NEO BRUTALISM
+   ========================================================================= */
+
+:root[data-style='neo-brutalism'] {
+  --bg-primary: #fff5e1;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #fff0d4;
+  --bg-canvas: #fff5e1;
+  --bg-hover: #ffe9b8;
+  --bg-dot: rgba(0, 0, 0, 0.12);
+
+  --text-primary: #000000;
+  --text-secondary: #1a1a1a;
+  --text-tertiary: #555555;
+
+  --border-primary: #000000;
+  --border-secondary: #000000;
+
+  --accent-primary: #ffd600;
+  --accent-secondary: #ff2d87;
+  --accent-fg: #000000;
+  --accent-gradient: #ffd600;
+
+  --color-yellow: #ffd600;
+  --color-pink: #ff2d87;
+  --color-cyan: #00d9ff;
+  --color-lime: #c6ff00;
+
+  --shadow-sm: 2px 2px 0 #000000;
+  --shadow-md: 4px 4px 0 #000000;
+  --shadow-lg: 6px 6px 0 #000000;
+  --shadow-glow: 0 0 0 3px var(--accent-primary);
+
+  --node-bg: #ffffff;
+  --node-border: #000000;
+  --field-bg: #fff5e1;
+  --field-border: #000000;
+
+  --danger: #ff3d3d;
+  --success: #00c853;
+  --warning: #ff9800;
+
+  --glass-bg: #ffffff;
+  --glass-border: #000000;
+  --glass-border-strong: #000000;
+
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+}
+
+:root[data-style='neo-brutalism'][data-theme='dark'] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #262626;
+  --bg-tertiary: #0d0d0d;
+  --bg-canvas: #1a1a1a;
+  --bg-hover: #333333;
+  --bg-dot: rgba(255, 255, 255, 0.1);
+
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-tertiary: #999999;
+
+  --border-primary: #ffffff;
+  --border-secondary: #ffffff;
+
+  --shadow-sm: 2px 2px 0 #ffd600;
+  --shadow-md: 4px 4px 0 #ffd600;
+  --shadow-lg: 6px 6px 0 #ff2d87;
+
+  --node-bg: #262626;
+  --node-border: #ffffff;
+  --field-bg: #1a1a1a;
+  --field-border: #ffffff;
+
+  --glass-bg: #262626;
+  --glass-border: #ffffff;
+  --glass-border-strong: #ffffff;
+}
+
+/* =========================================================================
+   AURORA (Liquid Glass only)
+   ========================================================================= */
+
+:root[data-style='liquid-glass'] body::before,
+:root[data-style='liquid-glass'] body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 0;
+  animation: aurora-float 20s ease-in-out infinite;
+}
+
+:root[data-style='liquid-glass'] body::before {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, var(--aurora-1) 0%, transparent 70%);
+  top: -200px; left: -100px;
+}
+
+:root[data-style='liquid-glass'] body::after {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, var(--aurora-2) 0%, transparent 70%);
+  bottom: -300px; right: -200px;
+  animation-delay: -10s;
+}
+
+:root[data-style='liquid-glass'][data-theme='dark'] body::before,
+:root[data-style='liquid-glass'][data-theme='dark'] body::after {
+  opacity: 0.25;
+}
+
+:root[data-style='liquid-glass'] #root::before {
+  content: '';
+  position: fixed;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--aurora-3) 0%, transparent 70%);
+  filter: blur(80px);
+  opacity: 0.25;
+  top: 30%; right: 30%;
+  pointer-events: none;
+  z-index: 0;
+  animation: aurora-float 25s ease-in-out infinite reverse;
+}
+
+:root[data-style='liquid-glass'][data-theme='dark'] #root::before { opacity: 0.18; }
+
+@keyframes aurora-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(80px, -60px) scale(1.1); }
+  66%      { transform: translate(-50px, 50px) scale(0.95); }
+}
+
+/* =========================================================================
+   SCROLLBARS
+   ========================================================================= */
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
 
-/* ============================
-   REACT FLOW CUSTOMIZATIONS
-   ============================ */
+:root[data-style='liquid-glass'] ::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.25);
+  border-radius: 5px;
+}
+:root[data-style='liquid-glass'] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.45);
+}
 
-.react-flow { background: var(--bg-canvas); }
-.react-flow__background { background: var(--bg-canvas); }
+:root[data-style='neo-brutalism'] ::-webkit-scrollbar { width: 14px; height: 14px; }
+:root[data-style='neo-brutalism'] ::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-primary);
+}
+:root[data-style='neo-brutalism'] ::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border: 2px solid var(--border-primary);
+}
+:root[data-style='neo-brutalism'] ::-webkit-scrollbar-thumb:hover { background: var(--color-pink); }
+
+/* =========================================================================
+   REACT FLOW
+   ========================================================================= */
+
+.react-flow, .react-flow__background {
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
+}
+
+:root[data-style='neo-brutalism'] .react-flow,
+:root[data-style='neo-brutalism'] .react-flow__background {
+  background: var(--bg-canvas) !important;
+}
 
 .react-flow__controls {
-  box-shadow: var(--shadow-md) !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md) !important;
   overflow: hidden;
-  border: 1px solid var(--border-primary) !important;
+}
+
+:root[data-style='liquid-glass'] .react-flow__controls {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-md), inset 0 1px 0 var(--glass-shadow-inset-top) !important;
+}
+
+:root[data-style='neo-brutalism'] .react-flow__controls {
+  background: var(--bg-secondary) !important;
+  border: 2.5px solid var(--border-primary) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .react-flow__controls button {
-  background: var(--bg-secondary) !important;
-  border-bottom: 1px solid var(--border-primary) !important;
+  background: transparent !important;
   color: var(--text-primary) !important;
-  width: 32px !important;
-  height: 32px !important;
+  width: 34px !important; height: 34px !important;
+  transition: background 0.15s !important;
 }
 
-.react-flow__controls button:hover { background: var(--bg-tertiary) !important; }
+:root[data-style='liquid-glass'] .react-flow__controls button {
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+:root[data-style='liquid-glass'] .react-flow__controls button:hover {
+  background: rgba(99, 102, 241, 0.15) !important;
+}
+
+:root[data-style='neo-brutalism'] .react-flow__controls button {
+  border-bottom: 2px solid var(--border-primary) !important;
+  font-weight: 700;
+}
+:root[data-style='neo-brutalism'] .react-flow__controls button:hover {
+  background: var(--accent-primary) !important;
+}
+
+.react-flow__controls button:last-child { border-bottom: none !important; }
 .react-flow__controls button svg { fill: var(--text-primary) !important; }
 
-.react-flow__minimap {
-  border-radius: 10px !important;
-  box-shadow: var(--shadow-md) !important;
-  border: 1px solid var(--border-primary) !important;
-  overflow: hidden;
+.react-flow__minimap { border-radius: var(--radius-md) !important; overflow: hidden; }
+
+:root[data-style='liquid-glass'] .react-flow__minimap {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--shadow-md), inset 0 1px 0 var(--glass-shadow-inset-top) !important;
+}
+
+:root[data-style='neo-brutalism'] .react-flow__minimap {
   background: var(--bg-secondary) !important;
+  border: 2.5px solid var(--border-primary) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .react-flow__attribution { display: none !important; }
 
-/* ============================
-   EDGES & CONNECTIONS
-   ============================ */
+/* =========================================================================
+   EDGES
+   ========================================================================= */
 
-.react-flow__edge-path {
+.react-flow__edge-path { transition: stroke-width 0.15s, filter 0.15s, stroke 0.15s; }
+
+:root[data-style='liquid-glass'] .react-flow__edge-path {
   stroke: var(--accent-primary);
   stroke-width: 2;
-  transition: stroke-width 0.15s;
+  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.5));
+}
+:root[data-style='liquid-glass'][data-theme='dark'] .react-flow__edge-path {
+  filter: drop-shadow(0 0 8px rgba(167, 139, 250, 0.6));
+}
+:root[data-style='liquid-glass'] .react-flow__edge:hover .react-flow__edge-path,
+:root[data-style='liquid-glass'] .react-flow__edge.selected .react-flow__edge-path {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 14px rgba(99, 102, 241, 0.8));
 }
 
-.react-flow__edge:hover .react-flow__edge-path {
-  stroke-width: 3;
-  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4));
+:root[data-style='neo-brutalism'] .react-flow__edge-path {
+  stroke: var(--border-primary);
+  stroke-width: 2.5;
 }
-
-.react-flow__edge.selected .react-flow__edge-path {
-  stroke-width: 3;
-  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+:root[data-style='neo-brutalism'] .react-flow__edge:hover .react-flow__edge-path,
+:root[data-style='neo-brutalism'] .react-flow__edge.selected .react-flow__edge-path {
+  stroke-width: 3.5;
+  stroke: var(--color-pink, #ff2d87);
 }
 
 .react-flow__edge.cycle-edge .react-flow__edge-path,
@@ -146,14 +386,16 @@ body {
   animation: cyclePulse 1.5s ease-in-out infinite;
 }
 
-@keyframes cyclePulse {
-  0%, 100% { opacity: 1; stroke-width: 3; }
-  50% { opacity: 0.5; stroke-width: 4; }
+:root[data-style='liquid-glass'] .cycle-edge .react-flow__edge-path {
+  filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.7)) !important;
 }
 
-/* Animated edge flow */
-.react-flow__edge.animated path,
-.animated-edge {
+@keyframes cyclePulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.6; }
+}
+
+.react-flow__edge.animated path, .animated-edge {
   stroke-dasharray: 5;
   animation: dashFlow 0.6s linear infinite;
 }
@@ -162,36 +404,36 @@ body {
   to { stroke-dashoffset: -10; }
 }
 
-/* ============================
-   CONNECTION HANDLES
-   ============================ */
+/* =========================================================================
+   HANDLES
+   ========================================================================= */
 
-.react-flow__handle,
-.custom-handle {
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s !important;
+.react-flow__handle, .custom-handle {
+  transition: transform 0.15s, box-shadow 0.15s !important;
   cursor: crosshair !important;
 }
 
-.custom-handle:hover {
+:root[data-style='liquid-glass'] .custom-handle {
+  box-shadow: 0 0 10px currentColor, 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+}
+:root[data-style='liquid-glass'] .custom-handle:hover {
+  transform: scale(1.6) !important;
+  box-shadow: 0 0 18px currentColor, 0 0 0 6px rgba(99, 102, 241, 0.2) !important;
+}
+
+:root[data-style='neo-brutalism'] .custom-handle:hover {
   transform: scale(1.5) !important;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 2px 2px 0 var(--border-primary) !important;
 }
 
 .react-flow__handle.connecting {
   background: var(--success) !important;
-  transform: scale(1.5);
+  transform: scale(1.6);
+}
+:root[data-style='liquid-glass'] .react-flow__handle.connecting {
+  box-shadow: 0 0 20px var(--success) !important;
 }
 
-.react-flow__handle.connectionindicator {
-  animation: handlePulse 1s ease-in-out infinite;
-}
-
-@keyframes handlePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-}
-
-/* Connection line being drawn */
 .react-flow__connection-path {
   stroke: var(--accent-primary);
   stroke-width: 2.5;
@@ -199,27 +441,35 @@ body {
   animation: dashFlow 0.6s linear infinite;
 }
 
-/* ============================
-   NODE STYLES
-   ============================ */
-
-.react-flow__node {
-  transition: filter 0.15s;
+:root[data-style='liquid-glass'] .react-flow__connection-path {
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
 }
 
-.react-flow__node.selected .node-card {
-  outline: 2px solid var(--accent-primary);
-  outline-offset: -1px;
-  box-shadow: var(--shadow-lg) !important;
+:root[data-style='neo-brutalism'] .react-flow__connection-path {
+  stroke: var(--border-primary);
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
 }
 
-.node-card {
-  transition: box-shadow 0.2s ease, outline 0.15s;
+/* =========================================================================
+   NODE SELECTION
+   ========================================================================= */
+
+.react-flow__node { transition: filter 0.15s; }
+
+:root[data-style='liquid-glass'] .react-flow__node.selected .node-card {
+  box-shadow: 0 0 0 2px var(--accent-primary), var(--shadow-lg) !important;
 }
 
-/* ============================
+:root[data-style='neo-brutalism'] .react-flow__node.selected .node-card {
+  box-shadow: 6px 6px 0 var(--color-pink, #ff2d87) !important;
+}
+
+.node-card { transition: box-shadow 0.15s, transform 0.1s; }
+
+/* =========================================================================
    ANIMATIONS
-   ============================ */
+   ========================================================================= */
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -231,149 +481,227 @@ body {
   to   { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-20px); }
-  to   { opacity: 1; transform: translateX(0); }
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-/* ============================
-   BUTTONS & INPUTS
-   ============================ */
+/* =========================================================================
+   BUTTONS
+   ========================================================================= */
 
 .btn {
   font-family: inherit;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   font-size: 13px;
-  padding: 8px 14px;
+  position: relative;
 }
 
-.btn:hover { transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
-.btn:disabled { cursor: not-allowed; transform: none !important; }
+.btn:disabled { cursor: not-allowed; opacity: 0.4; }
 
-.btn-primary {
+:root[data-style='liquid-glass'] .btn {
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 8px 14px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+:root[data-style='liquid-glass'] .btn:hover:not(:disabled) { transform: translateY(-1px); }
+:root[data-style='liquid-glass'] .btn:active:not(:disabled) { transform: translateY(0); }
+
+:root[data-style='liquid-glass'] .btn-primary {
   background: var(--accent-gradient);
   color: white;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+:root[data-style='liquid-glass'] .btn-primary:hover:not(:disabled) {
+  box-shadow: var(--shadow-glow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
-.btn-primary:hover { box-shadow: var(--shadow-glow); }
-
-.btn-secondary {
-  background: var(--bg-tertiary);
+:root[data-style='liquid-glass'] .btn-secondary {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   color: var(--text-primary);
-  border: 1px solid var(--border-primary);
+  border: 1px solid var(--glass-border);
 }
-
-.btn-secondary:hover {
-  background: var(--bg-primary);
+:root[data-style='liquid-glass'] .btn-secondary:hover:not(:disabled) {
+  background: var(--bg-secondary);
   border-color: var(--accent-primary);
 }
 
-.btn-ghost {
+:root[data-style='liquid-glass'] .btn-ghost {
   background: transparent;
   color: var(--text-secondary);
 }
-
-.btn-ghost:hover {
-  background: var(--bg-tertiary);
+:root[data-style='liquid-glass'] .btn-ghost:hover:not(:disabled) {
+  background: var(--glass-bg);
   color: var(--text-primary);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
 
-.btn-icon {
-  width: 36px;
-  height: 36px;
+:root[data-style='liquid-glass'] .btn.btn-icon {
+  width: 38px;
+  height: 38px;
   padding: 0;
+  border-radius: 10px;
 }
+
+:root[data-style='neo-brutalism'] .btn {
+  font-weight: 700;
+  border: 2.5px solid var(--border-primary);
+  border-radius: 6px;
+  padding: 7px 14px;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+:root[data-style='neo-brutalism'] .btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+}
+:root[data-style='neo-brutalism'] .btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--border-primary) !important;
+}
+
+:root[data-style='neo-brutalism'] .btn-primary {
+  background: var(--accent-primary);
+  color: var(--accent-fg);
+  box-shadow: 3px 3px 0 var(--border-primary);
+}
+:root[data-style='neo-brutalism'] .btn-primary:hover:not(:disabled) {
+  background: var(--color-pink);
+  color: white;
+  box-shadow: 4px 4px 0 var(--border-primary);
+}
+
+:root[data-style='neo-brutalism'] .btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  box-shadow: 3px 3px 0 var(--border-primary);
+}
+:root[data-style='neo-brutalism'] .btn-secondary:hover:not(:disabled) {
+  background: var(--accent-primary);
+  box-shadow: 4px 4px 0 var(--border-primary);
+}
+
+:root[data-style='neo-brutalism'] .btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: transparent;
+  box-shadow: none;
+}
+:root[data-style='neo-brutalism'] .btn-ghost:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+  box-shadow: 3px 3px 0 var(--border-primary);
+}
+
+:root[data-style='neo-brutalism'] .btn.btn-icon {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 6px;
+}
+
+.btn-icon { width: 38px; height: 38px; padding: 0; }
+
+/* =========================================================================
+   INPUTS
+   ========================================================================= */
 
 .input-base {
-  background: var(--field-bg);
-  border: 1px solid var(--field-border);
-  border-radius: 6px;
-  padding: 7px 10px;
-  font-size: 12px;
-  color: var(--text-primary);
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
   width: 100%;
+  outline: none;
   font-family: inherit;
+  color: var(--text-primary);
+  background: var(--field-bg);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-size: 12px;
+  padding: 7px 10px;
 }
 
-.input-base:focus {
+:root[data-style='liquid-glass'] .input-base {
+  border: 1px solid var(--field-border);
+  border-radius: 8px;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+}
+:root[data-style='liquid-glass'] .input-base:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-/* ============================
-   EMPTY STATE
-   ============================ */
-
-.empty-state {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-  flex-direction: column;
-  gap: 12px;
-  color: var(--text-tertiary);
-  text-align: center;
-  padding: 20px;
+:root[data-style='neo-brutalism'] .input-base {
+  border: 2px solid var(--field-border);
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 13px;
+}
+:root[data-style='neo-brutalism'] .input-base:focus {
+  box-shadow: 3px 3px 0 var(--border-primary);
+  transform: translate(-1px, -1px);
 }
 
-/* ============================
-   MODALS
-   ============================ */
+/* =========================================================================
+   MISC UI
+   ========================================================================= */
+
+.empty-state {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  flex-direction: column; gap: 12px;
+  color: var(--text-tertiary);
+  text-align: center; padding: 20px;
+}
 
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
   z-index: 1000;
   animation: fadeIn 0.2s ease;
 }
 
-.modal-content {
-  background: var(--bg-secondary);
-  border-radius: 16px;
-  box-shadow: var(--shadow-lg);
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
-  overflow: auto;
-  animation: fadeIn 0.3s ease;
-  border: 1px solid var(--border-primary);
+:root[data-style='liquid-glass'] .modal-overlay {
+  background: rgba(10, 10, 20, 0.35);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+:root[data-style='neo-brutalism'] .modal-overlay {
+  background: rgba(0, 0, 0, 0.45);
 }
 
-/* ============================
-   TOOLTIPS
-   ============================ */
+.modal-content {
+  max-width: 500px; width: 90%; max-height: 80vh;
+  overflow: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+:root[data-style='liquid-glass'] .modal-content {
+  background: var(--bg-secondary);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 var(--glass-shadow-inset-top);
+  border: 1px solid var(--glass-border-strong);
+}
+
+:root[data-style='neo-brutalism'] .modal-content {
+  background: var(--bg-secondary);
+  border: 2.5px solid var(--border-primary);
+  border-radius: 10px;
+  box-shadow: 8px 8px 0 var(--border-primary);
+}
 
 .tooltip { position: relative; }
-
 .tooltip::after {
   content: attr(data-tooltip);
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  background: var(--text-primary);
-  color: var(--bg-secondary);
   padding: 5px 9px;
-  border-radius: 6px;
   font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
@@ -382,44 +710,45 @@ body {
   transition: opacity 0.15s;
   z-index: 200;
 }
-
 .tooltip:hover::after { opacity: 1; }
 
-/* ============================
-   EDGE TOOLBAR — FLOATING
-   ============================ */
-
-.edge-toolbar {
-  backdrop-filter: blur(10px);
-  user-select: none;
+:root[data-style='liquid-glass'] .tooltip::after {
+  background: rgba(10, 10, 20, 0.85);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: white;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* ============================
-   TOAST CONTAINER
-   ============================ */
+:root[data-style='neo-brutalism'] .tooltip::after {
+  background: var(--border-primary);
+  color: var(--bg-primary);
+  border-radius: 4px;
+  border: 2px solid var(--border-primary);
+  font-weight: 700;
+}
+
+.edge-toolbar { user-select: none; }
+
+:root[data-style='liquid-glass'] .edge-toolbar {
+  backdrop-filter: blur(30px) saturate(200%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(200%) !important;
+}
+
+:root[data-style='neo-brutalism'] .edge-toolbar {
+  background: var(--bg-secondary) !important;
+  border: 2.5px solid var(--border-primary) !important;
+  border-radius: 8px !important;
+  box-shadow: 4px 4px 0 var(--border-primary) !important;
+}
 
 .toast-container > div {
   font-family: 'Inter', sans-serif !important;
 }
 
-/* ============================
-   ALIGNMENT GUIDES
-   ============================ */
-
-.alignment-guide {
-  position: absolute;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.alignment-guide-v {
-  width: 1px;
-  background: var(--accent-primary);
-  box-shadow: 0 0 4px rgba(99, 102, 241, 0.5);
-}
-
-.alignment-guide-h {
-  height: 1px;
-  background: var(--accent-primary);
-  box-shadow: 0 0 4px rgba(99, 102, 241, 0.5);
+:root[data-style='neo-brutalism'] .toast-container > div {
+  font-weight: 600 !important;
+  border: 2.5px solid var(--border-primary) !important;
+  border-radius: 6px !important;
+  box-shadow: 4px 4px 0 var(--border-primary) !important;
 }

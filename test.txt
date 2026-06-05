@@ -5,3 +5,6 @@ test 1.0.0 Received Nik
 1.0.3 Offline Contributions (I & Mugdha)
 1.0.4 Mugdhas Deployment Update
 1.0.5 Offline Contributions (I & Mugdha)
+1.0.6 New branch Liquid glass UI (I & Mugdha)
+1.0.7 New branch NEO BRUTALISM UI (I & Mugdha)
+1.0.8 Theme Consolidation and Switch
