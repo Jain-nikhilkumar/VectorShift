@@ -1,6 +1,7 @@
 // ui.js — Main canvas with custom edges, context menu, grid settings
 
 import { useState, useRef, useCallback, useEffect } from 'react';
+
 import ReactFlow, { Controls, Background, MiniMap, BackgroundVariant } from 'reactflow';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';

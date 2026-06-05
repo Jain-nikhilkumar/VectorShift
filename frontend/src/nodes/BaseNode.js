@@ -1,4 +1,5 @@
-// nodes/BaseNode.js — 8-way resize + content scaling + REFINED CONNECTION POINTS
+// nodes/BaseNode.js — LIQUID GLASS EDITION
+// 8-way resize + content scaling + frosted glass surface + light refraction
 
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
@@ -18,6 +19,14 @@ const RESIZE_HANDLES = [
 const DEFAULT_WIDTH = 240;
 const DEFAULT_HEIGHT = 180;
 
+// Convert hex to rgba for translucent headers
+const hexToRgba = (hex, alpha) => {
+  const m = hex.replace('#', '').match(/.{2}/g);
+  if (!m) return hex;
+  const [r, g, b] = m.map((c) => parseInt(c, 16));
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 export const BaseNode = ({
   id, data, title, icon,
   color = 'var(--accent-primary)',
@@ -27,17 +36,16 @@ export const BaseNode = ({
   minHeight = 100, maxHeight = 800,
   resizable = true,
 }) => {
-  const updateNodeField = useStore((state) => state.updateNodeField);
-  const updateNodeSize = useStore((state) => state.updateNodeSize);
-  const setNodePosition = useStore((state) => state.setNodePosition);
+  const updateNodeField = useStore((s) => s.updateNodeField);
+  const updateNodeSize = useStore((s) => s.updateNodeSize);
+  const setNodePosition = useStore((s) => s.setNodePosition);
 
   const [width, setWidth] = useState(data?.width || defaultWidth);
   const [height, setHeight] = useState(data?.height || null);
   const [isResizing, setIsResizing] = useState(false);
   const wrapperRef = useRef(null);
 
-  // Sync external size changes (e.g. from TextNode auto-resize) to internal state
-  // Skip while user is actively dragging to avoid fighting their input
+  // Sync external size changes (e.g. TextNode auto-resize) to internal state
   useEffect(() => {
     if (isResizing) return;
     if (data?.width && data.width !== width) setWidth(data.width);
@@ -107,9 +115,11 @@ export const BaseNode = ({
   const scaledInputStyle = {
     fontSize: px(12),
     padding: `${px(7)} ${px(10)}`,
-    borderRadius: px(6),
+    borderRadius: px(8),
     width: '100%',
     background: 'var(--field-bg)',
+    backdropFilter: 'blur(10px)',
+    WebkitBackdropFilter: 'blur(10px)',
     border: '1px solid var(--field-border)',
     color: 'var(--text-primary)',
     outline: 'none',
@@ -147,7 +157,6 @@ export const BaseNode = ({
     );
   };
 
-  // Refined handle rendering with bigger hover hit area
   const renderHandle = (handle, idx, isInput, total) => {
     const handleId = `${id}-${handle.id}`;
     return (
@@ -167,15 +176,6 @@ export const BaseNode = ({
           zIndex: 1,
         }}
       >
-        {/* Invisible larger hover hit zone */}
-        <div className="handle-hit-zone" style={{
-          position: 'absolute',
-          inset: -8,
-          borderRadius: '50%',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Actual react-flow handle */}
         <Handle
           type={isInput ? 'target' : 'source'}
           position={isInput ? Position.Left : Position.Right}
@@ -183,19 +183,16 @@ export const BaseNode = ({
           className="custom-handle"
           style={{
             background: color,
+            color: color,  // for glow shadow inheritance
             width: 12,
             height: 12,
-            border: '2px solid var(--node-bg)',
+            border: '2px solid var(--glass-border-strong)',
             position: 'relative',
             transform: 'none',
-            top: 'auto',
-            left: 'auto',
-            right: 'auto',
+            top: 'auto', left: 'auto', right: 'auto',
             pointerEvents: 'all',
           }}
         />
-
-        {/* Label */}
         {handle.label && (
           <span style={{
             position: 'absolute',
@@ -215,6 +212,14 @@ export const BaseNode = ({
     );
   };
 
+  // Translucent header tint (color at 75% opacity)
+  const headerTintLight = typeof color === 'string' && color.startsWith('#')
+    ? hexToRgba(color, 0.85)
+    : color;
+  const headerTintDark = typeof color === 'string' && color.startsWith('#')
+    ? hexToRgba(color, 0.7)
+    : color;
+
   return (
     <div
       ref={wrapperRef}
@@ -225,60 +230,114 @@ export const BaseNode = ({
         fontFamily: 'Inter, sans-serif',
       }}
     >
-      <div className="node-card" style={{
-        width: '100%', height: '100%',
-        background: 'var(--node-bg)',
-        border: '1px solid var(--node-border)',
-        borderRadius: px(12),
-        boxShadow: isResizing ? 'var(--shadow-lg)' : 'var(--shadow-md)',
-        overflow: 'hidden',
-        display: 'flex', flexDirection: 'column',
-        outline: isResizing ? `2px solid var(--accent-primary)` : 'none',
-        outlineOffset: '-1px',
-        transition: 'box-shadow 0.15s, outline 0.15s',
-      }}>
+      {/* GLASS NODE CARD */}
+      <div
+        className="node-card"
+        style={{
+          width: '100%',
+          height: '100%',
+          background: 'var(--node-bg)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          border: '1px solid var(--node-border)',
+          borderRadius: px(14),
+          boxShadow: isResizing
+            ? `0 0 0 2px var(--accent-primary), var(--shadow-lg), inset 0 1px 0 var(--glass-shadow-inset-top)`
+            : `var(--shadow-md), inset 0 1px 0 var(--glass-shadow-inset-top), inset 0 -1px 0 var(--glass-shadow-inset-bottom)`,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'box-shadow 0.15s, transform 0.15s',
+          position: 'relative',
+        }}
+      >
+        {/* Top light refraction strip — subtle sheen on top half */}
         <div style={{
-          background: color,
-          padding: `${px(10)} ${px(14)}`,
-          color: '#fff',
-          fontSize: px(13),
-          fontWeight: 700,
-          display: 'flex', alignItems: 'center', gap: px(8),
-          letterSpacing: '0.2px',
-          flexShrink: 0,
-        }}>
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '40%',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.12), transparent)',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }} />
+
+        {/* GLASS HEADER with translucent color */}
+        <div
+          style={{
+            background: headerTintLight,
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            padding: `${px(10)} ${px(14)}`,
+            color: '#fff',
+            fontSize: px(13),
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: px(8),
+            letterSpacing: '0.2px',
+            flexShrink: 0,
+            position: 'relative',
+            zIndex: 2,
+            borderBottom: '1px solid rgba(255, 255, 255, 0.18)',
+            textShadow: '0 1px 2px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          {/* Inset sheen on top of header */}
+          <div style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0,
+            height: '50%',
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.18), transparent)',
+            pointerEvents: 'none',
+          }} />
+
           {icon && (
-            <span style={{ display: 'flex', transform: `scale(${scale})`, transformOrigin: 'left center' }}>
+            <span style={{
+              display: 'flex',
+              transform: `scale(${scale})`,
+              transformOrigin: 'left center',
+              filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))',
+              position: 'relative',
+            }}>
               {icon}
             </span>
           )}
           <span style={{
             flex: 1, overflow: 'hidden', textOverflow: 'ellipsis',
             whiteSpace: 'nowrap', marginLeft: scale > 1 ? px(4) : 0,
+            position: 'relative',
           }}>
             {title}
           </span>
           <span style={{
-            fontSize: px(10), opacity: 0.75, fontWeight: 500,
+            fontSize: px(10), opacity: 0.85, fontWeight: 500,
             maxWidth: px(100), overflow: 'hidden',
             textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            position: 'relative',
           }}>
             {id}
           </span>
         </div>
 
+        {/* BODY */}
         <div className="nowheel" style={{
           padding: `${px(12)} ${px(14)}`,
           flex: 1, overflow: 'auto', minHeight: 0,
+          position: 'relative',
+          zIndex: 2,
         }}>
           {fields.map(renderField)}
           {typeof children === 'function' ? children({ scale, px }) : children}
         </div>
       </div>
 
+      {/* Input handles */}
       {inputs.map((handle, idx) => renderHandle(handle, idx, true, inputs.length))}
       {outputs.map((handle, idx) => renderHandle(handle, idx, false, outputs.length))}
 
+      {/* 8-way resize handles */}
       {resizable && RESIZE_HANDLES.map(({ dir, cursor, style }) => (
         <div
           key={dir}
@@ -293,6 +352,7 @@ export const BaseNode = ({
             borderRadius: dir.length === 2 ? '50%' : '2px',
             opacity: isResizing ? 1 : 0,
             transition: 'opacity 0.15s',
+            boxShadow: dir.length === 2 ? '0 0 10px var(--accent-primary)' : 'none',
             ...style,
           }}
           onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}
