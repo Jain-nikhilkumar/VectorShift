@@ -1,4 +1,5 @@
-// nodes/BaseNode.js — 8-way resize + content scaling + REFINED CONNECTION POINTS
+// nodes/BaseNode.js — NEO BRUTALISM
+// Thick borders, hard shadows, bold solid colors, NO subtlety
 
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Handle, Position } from 'reactflow';
@@ -9,10 +10,10 @@ const RESIZE_HANDLES = [
   { dir: 's',  cursor: 'ns-resize',   style: { bottom: -4, left: '50%', transform: 'translateX(-50%)', width: 24, height: 8 } },
   { dir: 'e',  cursor: 'ew-resize',   style: { right: -4, top: '50%', transform: 'translateY(-50%)', width: 8, height: 24 } },
   { dir: 'w',  cursor: 'ew-resize',   style: { left: -4, top: '50%', transform: 'translateY(-50%)', width: 8, height: 24 } },
-  { dir: 'nw', cursor: 'nwse-resize', style: { top: -5, left: -5, width: 12, height: 12 } },
-  { dir: 'ne', cursor: 'nesw-resize', style: { top: -5, right: -5, width: 12, height: 12 } },
-  { dir: 'sw', cursor: 'nesw-resize', style: { bottom: -5, left: -5, width: 12, height: 12 } },
-  { dir: 'se', cursor: 'nwse-resize', style: { bottom: -5, right: -5, width: 12, height: 12 } },
+  { dir: 'nw', cursor: 'nwse-resize', style: { top: -6, left: -6, width: 14, height: 14 } },
+  { dir: 'ne', cursor: 'nesw-resize', style: { top: -6, right: -6, width: 14, height: 14 } },
+  { dir: 'sw', cursor: 'nesw-resize', style: { bottom: -6, left: -6, width: 14, height: 14 } },
+  { dir: 'se', cursor: 'nwse-resize', style: { bottom: -6, right: -6, width: 14, height: 14 } },
 ];
 
 const DEFAULT_WIDTH = 240;
@@ -20,24 +21,23 @@ const DEFAULT_HEIGHT = 180;
 
 export const BaseNode = ({
   id, data, title, icon,
-  color = 'var(--accent-primary)',
+  color = '#ffd600',
   inputs = [], outputs = [], fields = [], children,
   width: defaultWidth = DEFAULT_WIDTH,
   minWidth = 160, maxWidth = 700,
   minHeight = 100, maxHeight = 800,
   resizable = true,
 }) => {
-  const updateNodeField = useStore((state) => state.updateNodeField);
-  const updateNodeSize = useStore((state) => state.updateNodeSize);
-  const setNodePosition = useStore((state) => state.setNodePosition);
+  const updateNodeField = useStore((s) => s.updateNodeField);
+  const updateNodeSize = useStore((s) => s.updateNodeSize);
+  const setNodePosition = useStore((s) => s.setNodePosition);
 
   const [width, setWidth] = useState(data?.width || defaultWidth);
   const [height, setHeight] = useState(data?.height || null);
   const [isResizing, setIsResizing] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const wrapperRef = useRef(null);
 
-  // Sync external size changes (e.g. from TextNode auto-resize) to internal state
-  // Skip while user is actively dragging to avoid fighting their input
   useEffect(() => {
     if (isResizing) return;
     if (data?.width && data.width !== width) setWidth(data.width);
@@ -105,12 +105,13 @@ export const BaseNode = ({
   const px = (n) => `${n * scale}px`;
 
   const scaledInputStyle = {
-    fontSize: px(12),
+    fontSize: px(12.5),
+    fontWeight: 500,
     padding: `${px(7)} ${px(10)}`,
-    borderRadius: px(6),
+    borderRadius: px(5),
     width: '100%',
     background: 'var(--field-bg)',
-    border: '1px solid var(--field-border)',
+    border: '2px solid var(--border-primary)',
     color: 'var(--text-primary)',
     outline: 'none',
     fontFamily: 'inherit',
@@ -126,12 +127,16 @@ export const BaseNode = ({
     };
 
     return (
-      <div key={idx} style={{ marginBottom: px(8) }}>
+      <div key={idx} style={{ marginBottom: px(10) }}>
         {field.label && (
           <label style={{
-            display: 'block', fontSize: px(10), fontWeight: 700,
-            color: 'var(--text-tertiary)', marginBottom: px(4),
-            textTransform: 'uppercase', letterSpacing: '0.6px',
+            display: 'block',
+            fontSize: px(10),
+            fontWeight: 800,
+            color: 'var(--text-primary)',
+            marginBottom: px(4),
+            textTransform: 'uppercase',
+            letterSpacing: '0.8px',
           }}>{field.label}</label>
         )}
         {field.type === 'select' ? (
@@ -147,7 +152,6 @@ export const BaseNode = ({
     );
   };
 
-  // Refined handle rendering with bigger hover hit area
   const renderHandle = (handle, idx, isInput, total) => {
     const handleId = `${id}-${handle.id}`;
     return (
@@ -155,11 +159,11 @@ export const BaseNode = ({
         key={`${isInput ? 'in' : 'out'}-${handle.id}`}
         style={{
           position: 'absolute',
-          [isInput ? 'left' : 'right']: -10,
+          [isInput ? 'left' : 'right']: -9,
           top: handle.style?.top ?? `${((idx + 1) * 100) / (total + 1)}%`,
           transform: 'translateY(-50%)',
-          width: 20,
-          height: 20,
+          width: 18,
+          height: 18,
           display: 'flex',
           alignItems: 'center',
           justifyContent: isInput ? 'flex-end' : 'flex-start',
@@ -167,15 +171,6 @@ export const BaseNode = ({
           zIndex: 1,
         }}
       >
-        {/* Invisible larger hover hit zone */}
-        <div className="handle-hit-zone" style={{
-          position: 'absolute',
-          inset: -8,
-          borderRadius: '50%',
-          pointerEvents: 'none',
-        }} />
-
-        {/* Actual react-flow handle */}
         <Handle
           type={isInput ? 'target' : 'source'}
           position={isInput ? Position.Left : Position.Right}
@@ -185,17 +180,14 @@ export const BaseNode = ({
             background: color,
             width: 12,
             height: 12,
-            border: '2px solid var(--node-bg)',
+            border: '2px solid var(--border-primary)',
             position: 'relative',
             transform: 'none',
-            top: 'auto',
-            left: 'auto',
-            right: 'auto',
+            top: 'auto', left: 'auto', right: 'auto',
             pointerEvents: 'all',
+            borderRadius: '50%',
           }}
         />
-
-        {/* Label */}
         {handle.label && (
           <span style={{
             position: 'absolute',
@@ -203,10 +195,12 @@ export const BaseNode = ({
             top: '50%',
             transform: 'translateY(-50%)',
             fontSize: px(10),
-            color: 'var(--text-tertiary)',
+            color: 'var(--text-secondary)',
             whiteSpace: 'nowrap',
             pointerEvents: 'none',
-            fontWeight: 500,
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.4px',
           }}>
             {handle.label}
           </span>
@@ -224,31 +218,54 @@ export const BaseNode = ({
         position: 'relative',
         fontFamily: 'Inter, sans-serif',
       }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="node-card" style={{
-        width: '100%', height: '100%',
-        background: 'var(--node-bg)',
-        border: '1px solid var(--node-border)',
-        borderRadius: px(12),
-        boxShadow: isResizing ? 'var(--shadow-lg)' : 'var(--shadow-md)',
-        overflow: 'hidden',
-        display: 'flex', flexDirection: 'column',
-        outline: isResizing ? `2px solid var(--accent-primary)` : 'none',
-        outlineOffset: '-1px',
-        transition: 'box-shadow 0.15s, outline 0.15s',
-      }}>
-        <div style={{
-          background: color,
-          padding: `${px(10)} ${px(14)}`,
-          color: '#fff',
-          fontSize: px(13),
-          fontWeight: 700,
-          display: 'flex', alignItems: 'center', gap: px(8),
-          letterSpacing: '0.2px',
-          flexShrink: 0,
-        }}>
+      {/* BRUTALIST NODE CARD */}
+      <div
+        className="node-card"
+        style={{
+          width: '100%',
+          height: '100%',
+          background: 'var(--node-bg)',
+          border: '2.5px solid var(--border-primary)',
+          borderRadius: px(10),
+          boxShadow: isResizing
+            ? `6px 6px 0 var(--color-pink)`
+            : isHovered
+              ? `6px 6px 0 var(--border-primary)`
+              : `4px 4px 0 var(--border-primary)`,
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'box-shadow 0.1s, transform 0.1s',
+          transform: isHovered ? 'translate(-1px, -1px)' : 'translate(0, 0)',
+        }}
+      >
+        {/* SOLID COLOR HEADER */}
+        <div
+          style={{
+            background: color,
+            padding: `${px(10)} ${px(14)}`,
+            color: '#000',
+            fontSize: px(13),
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            gap: px(8),
+            letterSpacing: '0.3px',
+            flexShrink: 0,
+            borderBottom: '2.5px solid var(--border-primary)',
+            textTransform: 'uppercase',
+          }}
+        >
           {icon && (
-            <span style={{ display: 'flex', transform: `scale(${scale})`, transformOrigin: 'left center' }}>
+            <span style={{
+              display: 'flex',
+              transform: `scale(${scale})`,
+              transformOrigin: 'left center',
+              color: '#000',
+            }}>
               {icon}
             </span>
           )}
@@ -259,17 +276,25 @@ export const BaseNode = ({
             {title}
           </span>
           <span style={{
-            fontSize: px(10), opacity: 0.75, fontWeight: 500,
+            fontSize: px(10), fontWeight: 700,
             maxWidth: px(100), overflow: 'hidden',
             textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            background: '#000',
+            color: color,
+            padding: `${px(2)} ${px(6)}`,
+            borderRadius: px(3),
+            fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
+            textTransform: 'none',
           }}>
             {id}
           </span>
         </div>
 
+        {/* BODY */}
         <div className="nowheel" style={{
           padding: `${px(12)} ${px(14)}`,
           flex: 1, overflow: 'auto', minHeight: 0,
+          background: 'var(--node-bg)',
         }}>
           {fields.map(renderField)}
           {typeof children === 'function' ? children({ scale, px }) : children}
@@ -288,11 +313,11 @@ export const BaseNode = ({
             position: 'absolute',
             cursor,
             zIndex: 5,
-            background: dir.length === 2 ? 'var(--accent-primary)' : 'transparent',
-            border: dir.length === 2 ? '2px solid white' : 'none',
-            borderRadius: dir.length === 2 ? '50%' : '2px',
+            background: dir.length === 2 ? 'var(--color-pink)' : 'transparent',
+            border: dir.length === 2 ? '2.5px solid var(--border-primary)' : 'none',
+            borderRadius: dir.length === 2 ? 0 : '2px',
             opacity: isResizing ? 1 : 0,
-            transition: 'opacity 0.15s',
+            transition: 'opacity 0.1s',
             ...style,
           }}
           onMouseEnter={(e) => (e.currentTarget.style.opacity = 1)}

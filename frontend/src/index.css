@@ -1,70 +1,116 @@
-/* ============================
-   GLOBAL STYLES & THEME SYSTEM
-   ============================ */
+/* =========================================
+   NEO BRUTALISM
+   Thick borders, hard shadows, loud colors
+   ========================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@500;600;700;800;900&display=swap');
+
+/* =========================================
+   LIGHT THEME — cream + bright accents
+   ========================================= */
 
 :root {
-  --bg-primary: #f8fafc;
+  /* Foundation */
+  --bg-primary: #fff5e1;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f5f9;
-  --bg-canvas: #fafbfc;
-  --bg-dot: #cbd5e1;
+  --bg-tertiary: #fff0d4;
+  --bg-canvas: #fff5e1;
+  --bg-hover: #ffe9b8;
+  --bg-dot: rgba(0, 0, 0, 0.12);
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
+  /* Text */
+  --text-primary: #000000;
+  --text-secondary: #1a1a1a;
+  --text-tertiary: #555555;
 
-  --border-primary: #e2e8f0;
-  --border-secondary: #cbd5e1;
+  /* Borders — THICK & BLACK */
+  --border-primary: #000000;
+  --border-secondary: #000000;
+  --border-width: 2.5px;
 
-  --accent-primary: #6366f1;
-  --accent-secondary: #8b5cf6;
-  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  /* Accents — bright & loud */
+  --accent-primary: #ffd600;   /* mustard yellow */
+  --accent-secondary: #ff2d87; /* hot pink */
+  --accent-fg: #000000;
+  --accent-gradient: #ffd600;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
-  --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+  /* Brand colors */
+  --color-yellow: #ffd600;
+  --color-pink: #ff2d87;
+  --color-cyan: #00d9ff;
+  --color-lime: #c6ff00;
+  --color-orange: #ff6b35;
+  --color-purple: #9d4edd;
 
+  /* Functional */
+  --danger: #ff3d3d;
+  --success: #00c853;
+  --warning: #ff9800;
+
+  /* HARD SHADOWS — no blur, solid offset */
+  --shadow-sm: 2px 2px 0 #000000;
+  --shadow-md: 4px 4px 0 #000000;
+  --shadow-lg: 6px 6px 0 #000000;
+  --shadow-glow: 0 0 0 3px var(--accent-primary);
+  --shadow-pressed: 0px 0px 0 #000000;
+
+  /* Node */
   --node-bg: #ffffff;
-  --node-border: #e2e8f0;
-  --field-bg: #f8fafc;
-  --field-border: #e2e8f0;
+  --node-border: #000000;
+  --field-bg: #fff5e1;
+  --field-border: #000000;
 
-  --danger: #ef4444;
-  --success: #10b981;
-  --warning: #f59e0b;
+  /* Glass back-compat */
+  --glass-bg: #ffffff;
+  --glass-border: #000000;
+  --glass-border-strong: #000000;
 }
+
+/* =========================================
+   DARK THEME — black + neon shadows
+   ========================================= */
 
 [data-theme='dark'] {
-  --bg-primary: #0a0e1a;
-  --bg-secondary: #131826;
-  --bg-tertiary: #1a2030;
-  --bg-canvas: #0f1420;
-  --bg-dot: #2d3548;
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #262626;
+  --bg-tertiary: #0d0d0d;
+  --bg-canvas: #1a1a1a;
+  --bg-hover: #333333;
+  --bg-dot: rgba(255, 255, 255, 0.1);
 
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #64748b;
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-tertiary: #999999;
 
-  --border-primary: #2d3548;
-  --border-secondary: #374151;
+  --border-primary: #ffffff;
+  --border-secondary: #ffffff;
 
-  --accent-primary: #818cf8;
-  --accent-secondary: #a78bfa;
-  --accent-gradient: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
+  --accent-primary: #ffd600;
+  --accent-secondary: #ff2d87;
+  --accent-fg: #000000;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(129, 140, 248, 0.4);
+  --danger: #ff5555;
+  --success: #00e676;
+  --warning: #ffab00;
 
-  --node-bg: #1a2030;
-  --node-border: #2d3548;
-  --field-bg: #131826;
-  --field-border: #2d3548;
+  --shadow-sm: 2px 2px 0 #ffd600;
+  --shadow-md: 4px 4px 0 #ffd600;
+  --shadow-lg: 6px 6px 0 #ff2d87;
+  --shadow-glow: 0 0 0 3px var(--accent-primary);
+
+  --node-bg: #262626;
+  --node-border: #ffffff;
+  --field-bg: #1a1a1a;
+  --field-border: #ffffff;
+
+  --glass-bg: #262626;
+  --glass-border: #ffffff;
+  --glass-border-strong: #ffffff;
 }
+
+/* =========================================
+   BASE
+   ========================================= */
 
 * { box-sizing: border-box; }
 
@@ -75,106 +121,138 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg-primary);
   color: var(--text-primary);
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background 0.2s ease, color 0.2s ease;
   overflow: hidden;
+  font-weight: 500;
 }
 
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-secondary); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+/* =========================================
+   SCROLLBARS — chunky
+   ========================================= */
 
-/* ============================
-   REACT FLOW CUSTOMIZATIONS
-   ============================ */
+::-webkit-scrollbar { width: 14px; height: 14px; }
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border: 2px solid var(--border-primary);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-pink);
+}
 
-.react-flow { background: var(--bg-canvas); }
-.react-flow__background { background: var(--bg-canvas); }
+/* =========================================
+   REACT FLOW
+   ========================================= */
+
+.react-flow {
+  background: var(--bg-canvas) !important;
+}
+
+.react-flow__background { background: var(--bg-canvas) !important; }
 
 .react-flow__controls {
-  box-shadow: var(--shadow-md) !important;
-  border-radius: 10px !important;
+  background: var(--bg-secondary) !important;
+  border: 2.5px solid var(--border-primary) !important;
+  border-radius: 8px !important;
   overflow: hidden;
-  border: 1px solid var(--border-primary) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .react-flow__controls button {
   background: var(--bg-secondary) !important;
-  border-bottom: 1px solid var(--border-primary) !important;
+  border: none !important;
+  border-bottom: 2px solid var(--border-primary) !important;
   color: var(--text-primary) !important;
-  width: 32px !important;
-  height: 32px !important;
+  width: 36px !important;
+  height: 36px !important;
+  transition: background 0.1s, transform 0.1s !important;
+  font-weight: 700;
 }
 
-.react-flow__controls button:hover { background: var(--bg-tertiary) !important; }
-.react-flow__controls button svg { fill: var(--text-primary) !important; }
+.react-flow__controls button:last-child {
+  border-bottom: none !important;
+}
+
+.react-flow__controls button:hover {
+  background: var(--accent-primary) !important;
+}
+
+.react-flow__controls button:active {
+  background: var(--color-pink) !important;
+}
+
+.react-flow__controls button svg {
+  fill: var(--text-primary) !important;
+}
 
 .react-flow__minimap {
-  border-radius: 10px !important;
-  box-shadow: var(--shadow-md) !important;
-  border: 1px solid var(--border-primary) !important;
-  overflow: hidden;
   background: var(--bg-secondary) !important;
+  border: 2.5px solid var(--border-primary) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-md) !important;
+  overflow: hidden;
 }
 
 .react-flow__attribution { display: none !important; }
 
-/* ============================
-   EDGES & CONNECTIONS
-   ============================ */
+/* =========================================
+   EDGES — bold lines
+   ========================================= */
 
 .react-flow__edge-path {
-  stroke: var(--accent-primary);
-  stroke-width: 2;
-  transition: stroke-width 0.15s;
+  stroke: var(--border-primary);
+  stroke-width: 2.5;
+  transition: stroke-width 0.1s;
 }
 
 .react-flow__edge:hover .react-flow__edge-path {
-  stroke-width: 3;
-  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.4));
+  stroke-width: 3.5;
+  stroke: var(--color-pink);
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke-width: 3;
-  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+  stroke-width: 3.5;
+  stroke: var(--color-pink);
 }
 
 .react-flow__edge.cycle-edge .react-flow__edge-path,
 .cycle-edge .react-flow__edge-path {
   stroke: var(--danger) !important;
-  stroke-width: 3 !important;
-  animation: cyclePulse 1.5s ease-in-out infinite;
+  stroke-width: 4 !important;
+  animation: cyclePulse 0.4s ease-in-out infinite;
 }
 
 @keyframes cyclePulse {
-  0%, 100% { opacity: 1; stroke-width: 3; }
-  50% { opacity: 0.5; stroke-width: 4; }
+  0%, 100% { stroke-dashoffset: 0; }
+  50%      { stroke-dashoffset: 6; }
 }
 
-/* Animated edge flow */
 .react-flow__edge.animated path,
 .animated-edge {
-  stroke-dasharray: 5;
-  animation: dashFlow 0.6s linear infinite;
+  stroke-dasharray: 6 4;
+  animation: dashFlow 0.4s linear infinite;
 }
 
 @keyframes dashFlow {
   to { stroke-dashoffset: -10; }
 }
 
-/* ============================
-   CONNECTION HANDLES
-   ============================ */
+/* =========================================
+   CONNECTION HANDLES — chunky dots
+   ========================================= */
 
 .react-flow__handle,
 .custom-handle {
-  transition: transform 0.15s, box-shadow 0.15s, background 0.15s !important;
+  transition: transform 0.1s !important;
   cursor: crosshair !important;
 }
 
 .custom-handle:hover {
   transform: scale(1.5) !important;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 2px 2px 0 var(--border-primary) !important;
 }
 
 .react-flow__handle.connecting {
@@ -182,48 +260,36 @@ body {
   transform: scale(1.5);
 }
 
-.react-flow__handle.connectionindicator {
-  animation: handlePulse 1s ease-in-out infinite;
-}
-
-@keyframes handlePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-}
-
-/* Connection line being drawn */
 .react-flow__connection-path {
-  stroke: var(--accent-primary);
-  stroke-width: 2.5;
-  stroke-dasharray: 5 5;
-  animation: dashFlow 0.6s linear infinite;
+  stroke: var(--border-primary);
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
+  animation: dashFlow 0.4s linear infinite;
 }
 
-/* ============================
-   NODE STYLES
-   ============================ */
+/* =========================================
+   NODES — selection state
+   ========================================= */
 
 .react-flow__node {
-  transition: filter 0.15s;
+  transition: filter 0.1s;
 }
 
 .react-flow__node.selected .node-card {
-  outline: 2px solid var(--accent-primary);
-  outline-offset: -1px;
-  box-shadow: var(--shadow-lg) !important;
+  box-shadow: 6px 6px 0 var(--color-pink) !important;
 }
 
 .node-card {
-  transition: box-shadow 0.2s ease, outline 0.15s;
+  transition: box-shadow 0.1s, transform 0.1s;
 }
 
-/* ============================
+/* =========================================
    ANIMATIONS
-   ============================ */
+   ========================================= */
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate(-3px, -3px); }
+  to   { opacity: 1; transform: translate(0, 0); }
 }
 
 @keyframes slideInRight {
@@ -231,61 +297,73 @@ body {
   to   { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes slideInLeft {
-  from { opacity: 0; transform: translateX(-20px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-/* ============================
-   BUTTONS & INPUTS
-   ============================ */
+/* =========================================
+   BUTTONS — CHUNKY WITH HARD SHADOWS
+   ========================================= */
 
 .btn {
   font-family: inherit;
-  font-weight: 600;
-  border: none;
-  border-radius: 8px;
+  font-weight: 700;
+  border: 2.5px solid var(--border-primary);
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: transform 0.08s, box-shadow 0.08s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   font-size: 13px;
-  padding: 8px 14px;
+  padding: 7px 14px;
+  letter-spacing: 0.01em;
+  position: relative;
 }
 
-.btn:hover { transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
-.btn:disabled { cursor: not-allowed; transform: none !important; }
+.btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--border-primary) !important;
+}
+
+.btn:disabled { cursor: not-allowed; opacity: 0.5; }
 
 .btn-primary {
-  background: var(--accent-gradient);
-  color: white;
-  box-shadow: var(--shadow-md);
+  background: var(--accent-primary);
+  color: var(--accent-fg);
+  box-shadow: 3px 3px 0 var(--border-primary);
 }
 
-.btn-primary:hover { box-shadow: var(--shadow-glow); }
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-pink);
+  color: white;
+  box-shadow: 4px 4px 0 var(--border-primary);
+}
 
 .btn-secondary {
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
   color: var(--text-primary);
-  border: 1px solid var(--border-primary);
+  box-shadow: 3px 3px 0 var(--border-primary);
 }
 
-.btn-secondary:hover {
-  background: var(--bg-primary);
-  border-color: var(--accent-primary);
+.btn-secondary:hover:not(:disabled) {
+  background: var(--accent-primary);
+  box-shadow: 4px 4px 0 var(--border-primary);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-primary);
+  border-color: transparent;
+  box-shadow: none;
 }
 
-.btn-ghost:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  border-color: var(--border-primary);
+  box-shadow: 3px 3px 0 var(--border-primary);
+  transform: translate(-1px, -1px);
 }
 
 .btn-icon {
@@ -294,27 +372,32 @@ body {
   padding: 0;
 }
 
+/* =========================================
+   INPUTS
+   ========================================= */
+
 .input-base {
   background: var(--field-bg);
-  border: 1px solid var(--field-border);
+  border: 2px solid var(--field-border);
   border-radius: 6px;
   padding: 7px 10px;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--text-primary);
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: box-shadow 0.1s;
   width: 100%;
   font-family: inherit;
 }
 
 .input-base:focus {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  box-shadow: 3px 3px 0 var(--border-primary);
+  transform: translate(-1px, -1px);
 }
 
-/* ============================
+/* =========================================
    EMPTY STATE
-   ============================ */
+   ========================================= */
 
 .empty-state {
   position: absolute;
@@ -328,98 +411,83 @@ body {
   color: var(--text-tertiary);
   text-align: center;
   padding: 20px;
+  font-weight: 600;
 }
 
-/* ============================
-   MODALS
-   ============================ */
+/* =========================================
+   MODALS — chunky with hard shadow
+   ========================================= */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn 0.15s ease;
 }
 
 .modal-content {
   background: var(--bg-secondary);
-  border-radius: 16px;
-  box-shadow: var(--shadow-lg);
+  border: 2.5px solid var(--border-primary);
+  border-radius: 10px;
+  box-shadow: 8px 8px 0 var(--border-primary);
   max-width: 500px;
   width: 90%;
   max-height: 80vh;
   overflow: auto;
-  animation: fadeIn 0.3s ease;
-  border: 1px solid var(--border-primary);
+  animation: fadeIn 0.15s ease;
 }
 
-/* ============================
+/* =========================================
    TOOLTIPS
-   ============================ */
+   ========================================= */
 
 .tooltip { position: relative; }
 
 .tooltip::after {
   content: attr(data-tooltip);
   position: absolute;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
-  background: var(--text-primary);
-  color: var(--bg-secondary);
-  padding: 5px 9px;
-  border-radius: 6px;
+  background: var(--border-primary);
+  color: var(--bg-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 700;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.15s;
+  transition: opacity 0.1s;
   z-index: 200;
+  border: 2px solid var(--border-primary);
 }
 
 .tooltip:hover::after { opacity: 1; }
 
-/* ============================
-   EDGE TOOLBAR — FLOATING
-   ============================ */
+/* =========================================
+   EDGE TOOLBAR
+   ========================================= */
 
 .edge-toolbar {
-  backdrop-filter: blur(10px);
-  user-select: none;
+  background: var(--bg-secondary) !important;
+  border: 2.5px solid var(--border-primary) !important;
+  border-radius: 8px !important;
+  box-shadow: 4px 4px 0 var(--border-primary) !important;
 }
 
-/* ============================
-   TOAST CONTAINER
-   ============================ */
+/* =========================================
+   TOAST
+   ========================================= */
 
 .toast-container > div {
   font-family: 'Inter', sans-serif !important;
-}
-
-/* ============================
-   ALIGNMENT GUIDES
-   ============================ */
-
-.alignment-guide {
-  position: absolute;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.alignment-guide-v {
-  width: 1px;
-  background: var(--accent-primary);
-  box-shadow: 0 0 4px rgba(99, 102, 241, 0.5);
-}
-
-.alignment-guide-h {
-  height: 1px;
-  background: var(--accent-primary);
-  box-shadow: 0 0 4px rgba(99, 102, 241, 0.5);
+  font-weight: 600 !important;
+  border: 2.5px solid var(--border-primary) !important;
+  border-radius: 6px !important;
+  box-shadow: 4px 4px 0 var(--border-primary) !important;
 }
