@@ -28,6 +28,17 @@ const hexToRgba = (hex, alpha) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
+// Returns '#000' or '#fff' for best contrast against the given hex color.
+// Uses WCAG-style perceived-luminance math (eye is more sensitive to green).
+const getReadableTextColor = (hex) => {
+  if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return '#fff';
+  const m = hex.replace('#', '').match(/.{2}/g);
+  if (!m) return '#fff';
+  const [r, g, b] = m.map((c) => parseInt(c, 16));
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? '#000' : '#fff';
+};
+
 export const BaseNode = ({
   id, data, title, icon,
   color = '#6366f1',
@@ -274,11 +285,15 @@ export const BaseNode = ({
         position: 'relative',
       };
 
+  // Auto-detect best text color based on header background luminance
+  const headerTextColor = getReadableTextColor(color);
+  const isDarkHeader = headerTextColor === '#fff';
+
   const headerStyle = isBrutalist
     ? {
         background: color,
         padding: `${px(10)} ${px(14)}`,
-        color: '#000',
+        color: headerTextColor,
         fontSize: px(13),
         fontWeight: 800,
         display: 'flex',
@@ -350,7 +365,7 @@ export const BaseNode = ({
               transform: `scale(${scale})`,
               transformOrigin: 'left center',
               filter: !isBrutalist ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' : 'none',
-              color: isBrutalist ? '#000' : 'inherit',
+              color: isBrutalist ? headerTextColor : 'inherit',
               position: 'relative',
             }}>
               {icon}
@@ -374,12 +389,13 @@ export const BaseNode = ({
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
-              background: '#000',
-              color: color,
+              background: isDarkHeader ? '#ffffff' : '#000000',
+              color: isDarkHeader ? color : color,
               padding: `${px(2)} ${px(6)}`,
               borderRadius: px(3),
               fontFamily: 'ui-monospace, "SF Mono", Menlo, monospace',
               textTransform: 'none',
+              border: isDarkHeader ? `1px solid ${color}` : 'none',
             }}>
               {id}
             </span>
