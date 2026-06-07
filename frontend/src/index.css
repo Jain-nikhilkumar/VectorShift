@@ -752,3 +752,54 @@ body {
   border-radius: 6px !important;
   box-shadow: 4px 4px 0 var(--border-primary) !important;
 }
+
+/* Added for IconLibraryModal - spin loader and modal entrance */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ===========================================
+   PIPELINE EXECUTION ANIMATIONS
+   =========================================== */
+
+/* Node currently executing — pulsing purple glow */
+.react-flow__node.node-executing > div {
+  position: relative;
+  animation: nodeExecutePulse 1.4s ease-in-out infinite;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.4), 0 0 32px rgba(139, 92, 246, 0.45) !important;
+}
+@keyframes nodeExecutePulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.4), 0 0 24px rgba(139, 92, 246, 0.4) !important; }
+  50%      { box-shadow: 0 0 0 5px rgba(139, 92, 246, 0.6), 0 0 40px rgba(139, 92, 246, 0.6) !important; }
+}
+
+/* Completed nodes - subtle green ring */
+.react-flow__node.node-completed > div {
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.5), 0 0 16px rgba(16, 185, 129, 0.25) !important;
+  transition: box-shadow 0.3s ease;
+}
+
+/* Active edges - flowing animation along the path */
+.react-flow__edge.edge-active .react-flow__edge-path {
+  stroke: #8b5cf6 !important;
+  stroke-width: 3.5 !important;
+  stroke-dasharray: 8 6;
+  animation: edgeFlow 0.6s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(139, 92, 246, 0.5));
+}
+@keyframes edgeFlow {
+  to { stroke-dashoffset: -28; }
+}
+
+/* Animated data dot traveling along the active edge */
+.react-flow__edge.edge-active .data-dot {
+  fill: #8b5cf6;
+  filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.8));
+}
+

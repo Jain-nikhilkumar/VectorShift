@@ -1,20 +1,29 @@
 // hooks/useLiveDAG.js
-// Runs DAG check locally (no backend call) on every nodes/edges change
+// Runs DAG check locally (no backend call) on every nodes/edges change.
+// Shapes (diagram nodes) are EXCLUDED — they're visual annotations, not data pipelines.
+// Only pipeline nodes are validated for cycles.
 
 import { useMemo } from 'react';
 import { useStore } from '../store';
+
+// Shape nodes (rectangle, circle, etc.) are NOT part of the data pipeline
+const isShapeNode = (type) => type?.startsWith('shape_');
 
 export const useLiveDAG = () => {
   const nodes = useStore((s) => s.nodes);
   const edges = useStore((s) => s.edges);
 
   return useMemo(() => {
-    if (nodes.length === 0) return { isDag: true, cycleEdgeIds: [] };
+    // Only consider pipeline nodes — shapes are visual, not data flow
+    const pipelineNodes = nodes.filter((n) => !isShapeNode(n.type));
 
-    const nodeIds = new Set(nodes.map((n) => n.id));
+    if (pipelineNodes.length === 0) return { isDag: true, cycleEdgeIds: [] };
+
+    const nodeIds = new Set(pipelineNodes.map((n) => n.id));
     const adj = {};
     nodeIds.forEach((id) => (adj[id] = []));
 
+    // Only count edges between pipeline nodes
     edges.forEach((e) => {
       if (nodeIds.has(e.source) && nodeIds.has(e.target)) {
         adj[e.source].push({ target: e.target, edgeId: e.id });

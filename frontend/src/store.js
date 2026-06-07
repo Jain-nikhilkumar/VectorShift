@@ -93,7 +93,119 @@ export const useStore = create((set, get) => ({
 
   addNode: (node) => {
     get().takeSnapshot();
-    set({ nodes: [...get().nodes, node] });
+    // Frames render BEHIND other nodes - prepend them
+    if (node.type === 'shape_frame') {
+      set({ nodes: [node, ...get().nodes] });
+    } else {
+      set({ nodes: [...get().nodes, node] });
+    }
+  },
+
+  // ---------- FRAME / GROUP MANAGEMENT ----------
+
+  // Create a frame around selected nodes (or empty frame if none selected)
+  createFrameFromSelection: (centerX, centerY) => {
+    get().takeSnapshot();
+    const { nodes, selectedNodes, nodeIDs } = get();
+    const newIDs = { ...nodeIDs };
+    if (newIDs['shape_frame'] === undefined) newIDs['shape_frame'] = 0;
+    newIDs['shape_frame'] += 1;
+    const frameId = `shape_frame-${newIDs['shape_frame']}`;
+
+    const targets = nodes.filter((n) => selectedNodes.includes(n.id) && n.type !== 'shape_frame');
+
+    let frameNode;
+    if (targets.length === 0) {
+      // Empty frame at provided center
+      frameNode = {
+        id: frameId,
+        type: 'shape_frame',
+        position: { x: (centerX ?? 0) - 160, y: (centerY ?? 0) - 120 },
+        data: { id: frameId, label: 'Frame', smartMode: false, width: 320, height: 240 },
+      };
+      set({ nodes: [frameNode, ...nodes], nodeIDs: newIDs });
+    } else {
+      // Compute bounding box of selected nodes
+      const PADDING = 40;
+      const minX = Math.min(...targets.map((n) => n.position.x));
+      const minY = Math.min(...targets.map((n) => n.position.y));
+      const maxX = Math.max(...targets.map((n) => n.position.x + (n.width || n.data?.width || 200)));
+      const maxY = Math.max(...targets.map((n) => n.position.y + (n.height || n.data?.height || 100)));
+
+      const frameX = minX - PADDING;
+      const frameY = minY - PADDING - 24; // extra for label
+      const frameW = (maxX - minX) + PADDING * 2;
+      const frameH = (maxY - minY) + PADDING * 2 + 24;
+
+      frameNode = {
+        id: frameId,
+        type: 'shape_frame',
+        position: { x: frameX, y: frameY },
+        data: { id: frameId, label: 'Frame', smartMode: false, width: frameW, height: frameH },
+      };
+
+      // Insert frame BEFORE other nodes (so it renders behind)
+      const newNodes = [frameNode, ...nodes];
+      set({ nodes: newNodes, nodeIDs: newIDs });
+    }
+    return frameId;
+  },
+
+  // Toggle a frame between simple (visual) and smart (parented children) mode
+  toggleFrameSmartMode: (frameId) => {
+    const { nodes } = get();
+    const frame = nodes.find((n) => n.id === frameId);
+    if (!frame || frame.type !== 'shape_frame') return;
+
+    const newSmartMode = !(frame.data?.smartMode);
+    const frameX = frame.position.x;
+    const frameY = frame.position.y;
+    const frameW = frame.data?.width || 320;
+    const frameH = frame.data?.height || 240;
+
+    if (newSmartMode) {
+      // SIMPLE → SMART: find nodes whose center is inside the frame
+      // Re-parent them and convert their absolute position to relative.
+      const newNodes = nodes.map((n) => {
+        if (n.id === frameId) {
+          return { ...n, data: { ...n.data, smartMode: true } };
+        }
+        if (n.type === 'shape_frame' || n.parentNode) return n;  // skip other frames + already parented
+
+        const cx = n.position.x + ((n.width || n.data?.width || 200) / 2);
+        const cy = n.position.y + ((n.height || n.data?.height || 100) / 2);
+        const isInside = cx >= frameX && cx <= frameX + frameW && cy >= frameY && cy <= frameY + frameH;
+
+        if (isInside) {
+          return {
+            ...n,
+            parentNode: frameId,
+            extent: 'parent',
+            position: { x: n.position.x - frameX, y: n.position.y - frameY },
+          };
+        }
+        return n;
+      });
+      set({ nodes: newNodes });
+    } else {
+      // SMART → SIMPLE: detach children, convert relative position back to absolute
+      const newNodes = nodes.map((n) => {
+        if (n.id === frameId) {
+          return { ...n, data: { ...n.data, smartMode: false } };
+        }
+        if (n.parentNode === frameId) {
+          // Remove parent, restore absolute position
+          // eslint-disable-next-line no-unused-vars
+          const { parentNode, extent, ...rest } = n;
+          return {
+            ...rest,
+            position: { x: n.position.x + frameX, y: n.position.y + frameY },
+          };
+        }
+        return n;
+      });
+      set({ nodes: newNodes });
+    }
   },
 
   onNodesChange: (changes) => {
@@ -101,7 +213,42 @@ export const useStore = create((set, get) => ({
       (c) => c.type === 'remove' || (c.type === 'position' && c.dragging === false)
     );
     if (impactful) get().takeSnapshot();
-    set({ nodes: applyNodeChanges(changes, get().nodes) });
+
+    // BEFORE applying removes: if a smart frame is being deleted, detach its children
+    // (convert their position back to absolute and remove parentNode reference)
+    const removingIds = new Set(
+      changes.filter((c) => c.type === 'remove').map((c) => c.id)
+    );
+
+    let workingNodes = get().nodes;
+
+    if (removingIds.size > 0) {
+      // For each frame being removed, find its smart children and detach them
+      const framesBeingRemoved = workingNodes.filter(
+        (n) => removingIds.has(n.id) && n.type === 'shape_frame'
+      );
+
+      if (framesBeingRemoved.length > 0) {
+        workingNodes = workingNodes.map((n) => {
+          const parentFrame = framesBeingRemoved.find((f) => f.id === n.parentNode);
+          if (parentFrame) {
+            // Convert child position from relative → absolute, drop parent ref
+            // eslint-disable-next-line no-unused-vars
+            const { parentNode, extent, ...rest } = n;
+            return {
+              ...rest,
+              position: {
+                x: n.position.x + parentFrame.position.x,
+                y: n.position.y + parentFrame.position.y,
+              },
+            };
+          }
+          return n;
+        });
+      }
+    }
+
+    set({ nodes: applyNodeChanges(changes, workingNodes) });
 
     // Update selection
     const allSelected = get().nodes.filter((n) => n.selected).map((n) => n.id);
@@ -197,12 +344,42 @@ export const useStore = create((set, get) => ({
     if (selectedNodes.length === 0 && selectedEdges.length === 0) return;
     get().takeSnapshot();
 
-    const remainingNodes = nodes.filter((n) => !selectedNodes.includes(n.id));
+    const selectedSet = new Set(selectedNodes);
+
+    // FIRST: For any smart frame being deleted, detach its children.
+    // Convert their relative positions back to absolute coords, drop parentNode.
+    const framesBeingDeleted = nodes.filter(
+      (n) => selectedSet.has(n.id) && n.type === 'shape_frame'
+    );
+    const framePositions = new Map(framesBeingDeleted.map((f) => [f.id, f.position]));
+
+    let workingNodes = nodes;
+    if (framesBeingDeleted.length > 0) {
+      workingNodes = nodes.map((n) => {
+        // Child of a frame about to be deleted, and not itself being deleted
+        if (n.parentNode && framePositions.has(n.parentNode) && !selectedSet.has(n.id)) {
+          const framePos = framePositions.get(n.parentNode);
+          // eslint-disable-next-line no-unused-vars
+          const { parentNode, extent, ...rest } = n;
+          return {
+            ...rest,
+            position: {
+              x: n.position.x + framePos.x,
+              y: n.position.y + framePos.y,
+            },
+          };
+        }
+        return n;
+      });
+    }
+
+    // THEN: Remove the selected nodes and orphaned edges
+    const remainingNodes = workingNodes.filter((n) => !selectedSet.has(n.id));
     const remainingEdges = edges.filter(
       (e) =>
         !selectedEdges.includes(e.id) &&
-        !selectedNodes.includes(e.source) &&
-        !selectedNodes.includes(e.target)
+        !selectedSet.has(e.source) &&
+        !selectedSet.has(e.target)
     );
     set({
       nodes: remainingNodes,

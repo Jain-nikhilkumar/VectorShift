@@ -1,6 +1,6 @@
 // ui.js — Main canvas with custom edges, context menu, grid settings
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import ReactFlow, { Controls, Background, MiniMap, BackgroundVariant } from 'reactflow';
 import { useStore } from './store';
 import { shallow } from 'zustand/shallow';
@@ -28,7 +28,7 @@ const selector = (s) => ({
   setCycleEdges: s.setCycleEdges,
 });
 
-export const PipelineUI = ({ gridSettings }) => {
+export const PipelineUI = ({ gridSettings, execution }) => {
   const reactFlowWrapper = useRef(null);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
@@ -44,6 +44,26 @@ export const PipelineUI = ({ gridSettings }) => {
     setCycleEdges(cycleEdgeIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cycleEdgeIds.join(',')]);
+
+  // Augment nodes/edges with execution status (className applied via React Flow)
+  const decoratedNodes = useMemo(() => {
+    if (!execution) return nodes;
+    return nodes.map((n) => {
+      let className = n.className || '';
+      if (execution.executingNodeId === n.id) className += ' node-executing';
+      else if (execution.completedNodeIds?.has(n.id)) className += ' node-completed';
+      return { ...n, className: className.trim() };
+    });
+  }, [nodes, execution?.executingNodeId, execution?.completedNodeIds]);
+
+  const decoratedEdges = useMemo(() => {
+    if (!execution) return edges;
+    return edges.map((e) => {
+      let className = e.className || '';
+      if (execution.activeEdgeIds?.has(e.id)) className += ' edge-active';
+      return { ...e, className: className.trim() };
+    });
+  }, [edges, execution?.activeEdgeIds]);
 
   const onDrop = useCallback(
     (event) => {
@@ -102,8 +122,8 @@ export const PipelineUI = ({ gridSettings }) => {
   return (
     <div ref={reactFlowWrapper} style={{ flex: 1, position: 'relative' }}>
       <ReactFlow
-        nodes={nodes}
-        edges={edges}
+        nodes={decoratedNodes}
+        edges={decoratedEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}

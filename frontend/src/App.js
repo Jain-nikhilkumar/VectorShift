@@ -10,10 +10,12 @@ import { SubmitResultModal } from './components/SubmitResultModal';
 import { ShortcutsModal } from './components/ShortcutsModal';
 import { EdgeToolbar } from './components/EdgeToolbar';
 import { EdgePanel } from './components/EdgePanel';
+import { ExecutionConsole } from './components/ExecutionConsole';
 import { useTheme } from './hooks/useTheme';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useGridSettings } from './hooks/useGridSettings';
-import { submitPipeline } from './submit';
+import { usePipelineExecution } from './hooks/usePipelineExecution';
+import { useStore } from './store';
 
 function AppInner() {
   const { theme } = useTheme();
@@ -23,14 +25,19 @@ function AppInner() {
   const [submitResult, setSubmitResult] = useState(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showEdgePanel, setShowEdgePanel] = useState(false);
+  const [showConsole, setShowConsole] = useState(false);
+
+  const execution = usePipelineExecution();
+  const selectedNodes = useStore((s) => s.selectedNodes);
+  const selectedNodeId = selectedNodes?.[0];
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  const handleSubmit = async () => {
-    const result = await submitPipeline();
-    if (result) setSubmitResult(result);
+  const handleRunPipeline = () => {
+    setShowConsole(true);
+    execution.run();
   };
 
   return (
@@ -39,7 +46,7 @@ function AppInner() {
       background: 'var(--bg-primary)',
     }}>
       <Header
-        onSubmit={handleSubmit}
+        onSubmit={handleRunPipeline}
         onShowShortcuts={() => setShowShortcuts(true)}
         gridSettings={gridSettings}
         updateGridSettings={updateGridSettings}
@@ -47,7 +54,25 @@ function AppInner() {
 
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
         <Sidebar />
-        <PipelineUI gridSettings={gridSettings} />
+        <PipelineUI gridSettings={gridSettings} execution={execution} />
+
+        {/* Execution Console — slides up from bottom while running or after */}
+        {showConsole && (
+          <ExecutionConsole
+            isRunning={execution.isRunning}
+            logs={execution.logs}
+            nodeOutputs={execution.nodeOutputs}
+            onStop={execution.stop}
+            onReset={() => {
+              execution.reset();
+            }}
+            onClose={() => {
+              execution.reset();
+              setShowConsole(false);
+            }}
+            selectedNodeId={selectedNodeId}
+          />
+        )}
       </div>
 
       {/* Edge editing UI */}
