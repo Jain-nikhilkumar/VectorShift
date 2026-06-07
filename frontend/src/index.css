@@ -1,8 +1,4 @@
-/* =========================================
-   VECTORSHIFT — MULTI-STYLE THEME SYSTEM
-   Supports: liquid-glass | neo-brutalism
-   Toggled via [data-style] on <html>
-   ========================================= */
+
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
@@ -25,6 +21,7 @@ body {
 
 :root,
 :root[data-style='liquid-glass'] {
+  color-scheme: light;
   --bg-primary: #f0f1f8;
   --bg-secondary: rgba(255, 255, 255, 0.65);
   --bg-tertiary: rgba(255, 255, 255, 0.45);
@@ -74,6 +71,7 @@ body {
 }
 
 :root[data-style='liquid-glass'][data-theme='dark'] {
+  color-scheme: dark;
   --bg-primary: #060818;
   --bg-secondary: rgba(20, 24, 42, 0.55);
   --bg-tertiary: rgba(20, 24, 42, 0.35);
@@ -114,6 +112,7 @@ body {
    ========================================================================= */
 
 :root[data-style='neo-brutalism'] {
+  color-scheme: light;
   --bg-primary: #fff5e1;
   --bg-secondary: #ffffff;
   --bg-tertiary: #fff0d4;
@@ -162,6 +161,7 @@ body {
 }
 
 :root[data-style='neo-brutalism'][data-theme='dark'] {
+  color-scheme: dark;
   --bg-primary: #1a1a1a;
   --bg-secondary: #262626;
   --bg-tertiary: #0d0d0d;
@@ -751,4 +751,44 @@ body {
   border: 2.5px solid var(--border-primary) !important;
   border-radius: 6px !important;
   box-shadow: 4px 4px 0 var(--border-primary) !important;
+}
+
+/* =========================================================================
+   FORM CONTROLS — native <select> dropdown popups
+   The <select> elements in BaseNode use var(--field-bg) which is a
+   nearly-transparent white in liquid-glass dark mode. That looks fine on
+   the dark glass card, but when the native dropdown popup opens, browsers
+   composite the transparent bg over their default popup surface (white).
+   Combined with near-white --text-primary, options become invisible.
+   `color-scheme` above fixes the popup chrome; the rules below give the
+   <option> rows explicit opaque backgrounds so they're readable in every
+   browser (Safari in particular doesn't fully restyle the popup via
+   color-scheme alone).
+   ========================================================================= */
+
+:root[data-style='liquid-glass'] select option {
+  background-color: #ffffff;
+  color: #1a1d2e;
+}
+
+:root[data-style='liquid-glass'][data-theme='dark'] select option {
+  background-color: #14182a;
+  color: #f0f2fa;
+}
+
+:root[data-style='neo-brutalism'] select option {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+:root[data-style='neo-brutalism'][data-theme='dark'] select option {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Subtle focus ring on selects in dark glass so the closed control is
+   discoverable when it sits over a low-contrast section of the canvas. */
+:root[data-style='liquid-glass'][data-theme='dark'] select:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.25);
 }

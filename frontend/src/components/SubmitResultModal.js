@@ -33,7 +33,7 @@ export const SubmitResultModal = ({ open, onClose, result }) => {
             <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
               {isDag
                 ? 'Pipeline is a valid Directed Acyclic Graph.'
-                : 'Pipeline contains a cycle — cyclical edges highlighted in red on the canvas.'}
+                : 'Pipeline contains a cycle - cyclical edges highlighted in red on the canvas.'}
             </div>
           </div>
         </div>

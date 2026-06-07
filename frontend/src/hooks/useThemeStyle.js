@@ -8,7 +8,7 @@ export const THEME_STYLES = {
   'liquid-glass': {
     id: 'liquid-glass',
     name: 'Liquid Glass',
-    tagline: 'Apple WWDC 2025 — frosted, glowing, atmospheric',
+    tagline: 'Apple WWDC 2025 - frosted, glowing, atmospheric',
     emoji: '🔮',
   },
   'neo-brutalism': {
